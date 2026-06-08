@@ -8,7 +8,7 @@ A personal finance PWA for tracking income, expenses, payslips, and savings goal
 
 - **Ledger** — log income and expenses by category, grouped by day. Tap any entry to see details.
 - **Payslip tracker** — enter your payslip (basic pay, deductions, absences, OT, etc.) and get your net pay calculated automatically including all standard deductions.
-- **GoTyme bucket split** — any income can be automatically split across your named savings buckets by percentage, so you always know exactly how much goes where.
+- **savings bucket split** — any income can be automatically split across your named savings buckets by percentage, so you always know exactly how much goes where.
 - **Graphs** — donut charts for expense breakdown and income sources, bar chart for income vs expense per month, and a net flow line across 6 months.
 - **Offline-first** — all data is stored locally on your device via IndexedDB. Entries made without internet are tagged and auto-sync to Google Sheets when you're back online.
 - **PWA** — installable on Android and iOS. Opens fullscreen with no browser UI, feels like a native app.
@@ -34,7 +34,7 @@ No frameworks. No dependencies. No npm. Just files.
 
 ### Income entry
 - Categories: Salary, Incentive, Extra Income, Allotment, Freelance, Gift
-- Toggle **"Apply GoTyme split?"** to include or exclude from bucket calculation
+- Toggle **"Apply savings split?"** to include or exclude from bucket calculation
 - Excluded income still logs normally and shows in graphs — just no bucket breakdown
 
 ### Payslip entry
@@ -46,7 +46,7 @@ Fields mirror a standard Philippine payslip:
 - ₱25 fixed deduction auto-applied on every payslip
 - NET computed live as you type
 
-### GoTyme buckets
+### savings buckets
 - Fully editable — change name, percentage, and color per bucket
 - Add or delete buckets freely
 - Total must equal exactly 100% to save

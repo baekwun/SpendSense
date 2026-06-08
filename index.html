@@ -270,8 +270,9 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
   <div class="inner">
     <div class="gap"></div>
     <div class="card">
-      <div class="card-title">Sync — Google Apps Script</div>
-      <div class="field"><label>GAS Web App URL</label><input type="text" id="s-api" placeholder="https://script.google.com/macros/s/.../exec" style="font-size:11px"></div>
+      <div class="card-title">Sync — Supabase</div>
+      <div class="field"><label>Supabase Project URL</label><input type="text" id="s-sb-url" placeholder="https://xxxx.supabase.co" style="font-size:11px"></div>
+      <div class="field"><label>Supabase Anon Key</label><input type="text" id="s-sb-key" placeholder="eyJhbGci..." style="font-size:11px"></div>
     </div>
     <div class="card">
       <div class="card-title">WAR CHEST — ₱100k Goal</div>
@@ -512,85 +513,109 @@ async function saveBucketsLocal(){for(const b of buckets)await dbPut('buckets',b
 async function getSetting(key,def=''){const r=await dbGet('settings',key);return r?r.value:def;}
 async function setSetting(key,value){await dbPut('settings',{key,value});}
 
-// ═══ GAS API ══════════════════════════════════════════════════
-async function gasPost(body){
-  const url=await getSetting('gas_api_url','');
-  if(!url)throw new Error('No API URL');
-  const r=await fetch(url,{method:'POST',body:JSON.stringify(body)});
+// ═══ SUPABASE API ════════════════════════════════════════════
+async function sbUrl(){return (await getSetting('sb_url','')).replace(/\/$/,'');}
+async function sbKey(){return await getSetting('sb_key','');}
+
+async function sbGet(table,params={}){
+  const url=await sbUrl(), key=await sbKey();
+  if(!url||!key)throw new Error('No Supabase config');
+  const q=new URLSearchParams(params);
+  const r=await fetch(`${url}/rest/v1/${table}?${q}`,{headers:{'apikey':key,'Authorization':'Bearer '+key,'Content-Type':'application/json'}});
+  if(!r.ok)throw new Error(await r.text());
   return r.json();
 }
-async function gasGet(params){
-  const url=await getSetting('gas_api_url','');
-  if(!url)throw new Error('No API URL');
-  const r=await fetch(url+'?'+new URLSearchParams(params));
+async function sbPost(table,obj){
+  const url=await sbUrl(), key=await sbKey();
+  if(!url||!key)throw new Error('No Supabase config');
+  const r=await fetch(`${url}/rest/v1/${table}`,{method:'POST',headers:{'apikey':key,'Authorization':'Bearer '+key,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify(obj)});
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+async function sbDelete(table,id){
+  const url=await sbUrl(), key=await sbKey();
+  if(!url||!key)throw new Error('No Supabase config');
+  const r=await fetch(`${url}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`,{method:'DELETE',headers:{'apikey':key,'Authorization':'Bearer '+key}});
+  if(!r.ok)throw new Error(await r.text());
+}
+async function sbPatch(table,id,obj){
+  const url=await sbUrl(), key=await sbKey();
+  if(!url||!key)throw new Error('No Supabase config');
+  const r=await fetch(`${url}/rest/v1/${table}?id=eq.${encodeURIComponent(id)}`,{method:'PATCH',headers:{'apikey':key,'Authorization':'Bearer '+key,'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify(obj)});
+  if(!r.ok)throw new Error(await r.text());
   return r.json();
 }
 
 // ═══ SYNC ══════════════════════════════════════════════════════
 async function syncPending(){
   if(!isOnline)return;
-  const url=await getSetting('gas_api_url','');
-  if(!url)return;
+  const url=await sbUrl(), key=await sbKey();
+  if(!url||!key)return;
   try{
     const txs=await dbAll('transactions');
     const pending=txs.filter(t=>!t.synced);
     if(!pending.length)return;
     setSyncPill('syncing');
-    const res=await gasPost({action:'syncBatch',transactions:pending});
-    if(res.ok){
-      for(const t of pending)await dbPut('transactions',{...t,synced:true});
-      if(res.synced>0)toast(`Synced ${res.synced} record(s) ✓`);
-    }
+    const rows=pending.map(t=>({
+      id:t.id, date:t.date, type:t.type, category:t.category,
+      description:t.description, amount:t.amount,
+      apply_split:t.applySplit||false,
+      payslip_data:t.payslipData?JSON.stringify(t.payslipData):null,
+      savings_bucket_snapshot:t.savingsBucketSnapshot?JSON.stringify(t.savingsBucketSnapshot):null,
+      notes:t.notes||'', created_at:t.createdAt||new Date().toISOString()
+    }));
+    await sbPost('transactions',rows);
+    for(const t of pending)await dbPut('transactions',{...t,synced:true});
+    toast(`Synced ${pending.length} record(s) ✓`);
     setSyncPill('online');
   }catch(e){setSyncPill(isOnline?'online':'offline');}
 }
 
-async function pullFromSheets(){
-  const url=await getSetting('gas_api_url','');
-  if(!url||!isOnline)return;
+async function pullFromSupabase(){
+  const url=await sbUrl(), key=await sbKey();
+  if(!url||!key||!isOnline)return;
   try{
     setSyncPill('syncing');
-    const res=await gasGet({action:'getTransactions'});
-    if(!Array.isArray(res)){setSyncPill('online');return;}
+    const rows=await sbGet('transactions',{'order':'date.desc','limit':1000});
+    if(!Array.isArray(rows)){setSyncPill('online');return;}
     const existing=await dbAll('transactions');
     const existingIds=new Set(existing.map(t=>t.id));
     let pulled=0;
-    for(const row of res){
-      const id=row['ID']||row['id'];
-      if(!id||existingIds.has(id))continue;
+    for(const row of rows){
+      if(!row.id||existingIds.has(row.id))continue;
       let payslipData=null;
-      const raw=row['PayslipData']||row['payslipData'];
-      if(raw){try{payslipData=typeof raw==='string'?JSON.parse(raw):raw;}catch(e){}}
+      if(row.payslip_data){try{payslipData=typeof row.payslip_data==='string'?JSON.parse(row.payslip_data):row.payslip_data;}catch(e){}}
       let savingsBucketSnapshot=null;
-      const rawSnap=row['SavingsBucketSnapshot']||row['savingsBucketSnapshot'];
-      if(rawSnap){try{savingsBucketSnapshot=typeof rawSnap==='string'?JSON.parse(rawSnap):rawSnap;}catch(e){}}
+      if(row.savings_bucket_snapshot){try{savingsBucketSnapshot=typeof row.savings_bucket_snapshot==='string'?JSON.parse(row.savings_bucket_snapshot):row.savings_bucket_snapshot;}catch(e){}}
       const tx={
-        id,
-        date:row['Date']||row['date']||'',
-        type:row['Type']||row['type']||'expense',
-        category:row['Category']||row['category']||'other',
-        description:row['Description']||row['description']||'',
-        amount:parseFloat(row['Amount']||row['amount'])||0,
-        applySplit:(row['ApplySplit']||row['applySplit'])==='TRUE'||(row['ApplySplit']||row['applySplit'])===true,
-        payslipData,savingsBucketSnapshot,
-        notes:row['Notes']||row['notes']||'',
-        synced:true,
-        createdAt:row['CreatedAt']||row['createdAt']||Date.now()
+        id:row.id, date:row.date||'', type:row.type||'expense',
+        category:row.category||'other', description:row.description||'',
+        amount:parseFloat(row.amount)||0, applySplit:row.apply_split===true||row.apply_split==='true',
+        payslipData, savingsBucketSnapshot, notes:row.notes||'',
+        synced:true, createdAt:row.created_at||Date.now()
       };
       await dbPut('transactions',tx);pulled++;
     }
-    const bktRes=await gasGet({action:'getBuckets'});
-    if(Array.isArray(bktRes)&&bktRes.length){
-      buckets=bktRes.map(b=>({id:b['ID']||b['id']||genId('bk'),name:b['Name']||b['name']||'Bucket',percent:parseFloat(b['Percent']||b['percent'])||0,color:b['Color']||b['color']||'#818cf8'}));
-      await saveBucketsLocal();
-    }
-    const sRes=await gasGet({action:'getSettings'});
-    if(sRes&&typeof sRes==='object'){
-      if(sRes.war_chest_goal)await setSetting('wc_goal',sRes.war_chest_goal);
-      if(sRes.war_chest_saved)await setSetting('wc_saved',sRes.war_chest_saved);
-    }
+    // Pull buckets
+    try{
+      const bktRows=await sbGet('buckets',{'active':'eq.true'});
+      if(Array.isArray(bktRows)&&bktRows.length){
+        buckets=bktRows.map(b=>({id:b.id,name:b.name,percent:parseFloat(b.percent)||0,color:b.color||'#818cf8'}));
+        await saveBucketsLocal();
+      }
+    }catch(e){}
+    // Pull settings
+    try{
+      const sRows=await sbGet('settings',{});
+      if(Array.isArray(sRows)){
+        for(const s of sRows){
+          if(s.key==='war_chest_goal')await setSetting('wc_goal',s.value);
+          if(s.key==='war_chest_saved')await setSetting('wc_saved',s.value);
+        }
+      }
+    }catch(e){}
     setSyncPill('online');
-    if(pulled>0){toast(`Pulled ${pulled} record(s) from Sheets ✓`);renderTxList();}
+    if(pulled>0){toast(`Pulled ${pulled} record(s) ✓`);renderTxList();}
   }catch(e){setSyncPill(isOnline?'online':'offline');}
 }
 
@@ -807,8 +832,8 @@ async function deleteTx(id){
   if(!confirm('Delete this entry?'))return;
   await dbDel('transactions',id);
   closeModal('modal-tx-detail');
-  const url=await getSetting('gas_api_url','');
-  if(isOnline&&url)gasPost({action:'deleteTransaction',id}).catch(()=>{});
+  const url=await sbUrl(),key=await sbKey();
+  if(isOnline&&url&&key)sbDelete('transactions',id).catch(()=>{});
   toast('Deleted.');renderTxList();
 }
 
@@ -1095,7 +1120,8 @@ async function renderSavingsView(){
 
 // ═══ SETTINGS ══════════════════════════════════════════════════
 async function loadSettingsView(){
-  document.getElementById('s-api').value=await getSetting('gas_api_url','');
+  document.getElementById('s-sb-url').value=await getSetting('sb_url','');
+  document.getElementById('s-sb-key').value=await getSetting('sb_key','');
   document.getElementById('s-wc-goal').value=await getSetting('wc_goal','100000');
   document.getElementById('s-wc-saved').value=await getSetting('wc_saved','0');
   renderSettingsBuckets();
@@ -1112,14 +1138,15 @@ function renderSettingsBuckets(){
   document.getElementById('s-pct-total').style.color=total===100?'var(--green)':'var(--amber)';
 }
 async function saveAllSettings(){
-  await setSetting('gas_api_url',document.getElementById('s-api').value.trim());
+  await setSetting('sb_url',document.getElementById('s-sb-url').value.trim());
+  await setSetting('sb_key',document.getElementById('s-sb-key').value.trim());
   await setSetting('wc_goal',document.getElementById('s-wc-goal').value);
   await setSetting('wc_saved',document.getElementById('s-wc-saved').value);
   await saveBucketsLocal();
-  const url=await getSetting('gas_api_url','');
-  if(isOnline&&url){
-    gasPost({action:'saveBuckets',buckets}).catch(()=>{});
-    gasPost({action:'saveSettings',data:{war_chest_goal:document.getElementById('s-wc-goal').value,war_chest_saved:document.getElementById('s-wc-saved').value}}).catch(()=>{});
+  const url=await sbUrl(),key=await sbKey();
+  if(isOnline&&url&&key){
+    sbPost('buckets',buckets.map(b=>({id:b.id,name:b.name,percent:b.percent,color:b.color,active:true}))).catch(()=>{});
+    sbPost('settings',[{key:'war_chest_goal',value:document.getElementById('s-wc-goal').value},{key:'war_chest_saved',value:document.getElementById('s-wc-saved').value}]).catch(()=>{});
   }
   toast('Settings saved ✓');renderSettingsBuckets();
 }
@@ -1148,8 +1175,8 @@ async function saveBuckets(){
   const total=buckets.reduce((a,b)=>a+(b.percent||0),0);
   if(total!==100){toast('Total must be exactly 100%');return;}
   await saveBucketsLocal();closeModal('modal-buckets');renderSettingsBuckets();toast('Buckets saved ✓');
-  const url=await getSetting('gas_api_url','');
-  if(isOnline&&url)gasPost({action:'saveBuckets',buckets}).catch(()=>{});
+  const url=await sbUrl(),key=await sbKey();
+  if(isOnline&&url&&key)sbPost('buckets',buckets.map(b=>({id:b.id,name:b.name,percent:b.percent,color:b.color,active:true}))).catch(()=>{});
 }
 
 // ═══ ONLINE/OFFLINE ════════════════════════════════════════════
@@ -1164,7 +1191,7 @@ async function init(){
   setSyncPill(isOnline?'online':'offline');
   document.getElementById('msel-label').textContent=monthLabel(currentMonth);
   renderTxList();
-  if(isOnline){await pullFromSheets();await syncPending();}
+  if(isOnline){await pullFromSupabase();await syncPending();}
   if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
   if('serviceWorker' in navigator&&'SyncManager' in window){
     const reg=await navigator.serviceWorker.ready;

@@ -361,9 +361,9 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
       <div class="card-title">Net flow by month</div>
       <div id="net-flow-chart" style="min-height:70px"><div style="color:var(--text3);font-size:12px">No data yet</div></div>
     </div>
-    <!-- GoTyme buckets -->
+    <!-- savings buckets -->
     <div class="card" id="graph-buckets-card">
-      <div class="card-title">GoTyme split — last income</div>
+      <div class="card-title">Savings split — last income</div>
       <div id="graph-buckets"><div style="color:var(--text3);font-size:12px">Add an income entry first</div></div>
     </div>
     <div class="gap"></div>
@@ -391,7 +391,7 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
     <div class="card">
       <div class="card-title">WAR CHEST — ₱100k Goal</div>
       <div class="srow"><div><div class="srow-label">Goal amount</div></div><input class="sinput" type="number" id="s-wc-goal" value="100000"></div>
-      <div class="srow"><div><div class="srow-label">Amount saved so far</div><div class="srow-sub">Update manually after moving to GoTyme</div></div><input class="sinput" type="number" id="s-wc-saved" value="0"></div>
+      <div class="srow"><div><div class="srow-label">Amount saved so far</div><div class="srow-sub">Update manually after moving to Savings</div></div><input class="sinput" type="number" id="s-wc-saved" value="0"></div>
     </div>
     <!-- Buckets -->
     <div class="card">
@@ -518,7 +518,7 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
       <div id="split-toggle-row" style="display:none" class="card" style="margin-bottom:14px">
         <div class="toggle-row" style="padding:0;border:none">
           <div>
-            <div class="toggle-label">Apply GoTyme split?</div>
+            <div class="toggle-label">Apply Savings split?</div>
             <div class="toggle-sub" id="split-toggle-sub">Show how to distribute this income to your buckets</div>
           </div>
           <label class="switch"><input type="checkbox" id="tx-apply-split" checked onchange="onSplitToggle()"><span class="slider-sw"></span></label>
@@ -527,7 +527,7 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
 
       <!-- Split preview -->
       <div id="split-preview-wrap" style="display:none" class="card" style="margin-bottom:14px">
-        <div class="card-title">GoTyme split</div>
+        <div class="card-title">Savings split</div>
         <div class="split-preview" id="split-preview-inner"></div>
       </div>
 
@@ -543,7 +543,7 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
 <div class="overlay" id="modal-buckets">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">Edit GoTyme Buckets</div>
+    <div class="modal-title">Edit Savings Buckets</div>
     <div class="modal-body">
       <p style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.6">Add, rename, or delete buckets. Total must equal 100%.</p>
       <div id="bucket-editor-list"></div>
@@ -849,7 +849,7 @@ async function viewTx(id) {
   }
 
   if (t.applySplit && t.amount > 0) {
-    body += `<div class="card"><div class="card-title">GoTyme split</div><div class="split-preview">`;
+    body += `<div class="card"><div class="card-title">Savings split</div><div class="split-preview">`;
     buckets.forEach(b => {
       body += `<div class="split-item"><div class="split-dot" style="background:${b.color}"></div><div class="split-name" style="color:${b.color}">${b.name}</div><div class="split-desc">${b.percent}%</div><div class="split-amt">${php(t.amount*b.percent/100)}</div></div>`;
     });
@@ -906,10 +906,10 @@ function setType(type) {
   } else {
     splitRow.style.display='block';
     if (type==='payslip') {
-      splitSub.textContent = 'Show GoTyme split for this payslip';
+      splitSub.textContent = 'Show Savings split for this payslip';
       document.getElementById('tx-apply-split').checked = true;
     } else {
-      splitSub.textContent = 'Include in GoTyme bucket calculation?';
+      splitSub.textContent = 'Include in Savings bucket calculation?';
     }
     onSplitToggle();
   }

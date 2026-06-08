@@ -194,7 +194,8 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
 .type-btn{flex:1;padding:8px;border:none;border-radius:7px;background:transparent;color:var(--text3);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
 .type-btn.active.income{background:rgba(74,222,128,.15);color:var(--green)}
 .type-btn.active.expense{background:rgba(248,113,113,.15);color:var(--red)}
-.type-btn.active.payslip{background:rgba(129,140,248,.15);color:var(--acc2)}
+.type-btn.active.payslip{background:rgba(129,140,248,.15);color:var(--acc2)} 
+.type-btn.active.savings{background:rgba(74,222,128,.15);color:var(--green)}
 
 /* ── Category grid ── */
 .cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
@@ -412,6 +413,20 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
   </div>
 </div>
 
+<!-- ══ SAVINGS VIEW ══ -->
+<div id="view-savings" class="view">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div><div class="logo">Spend<em>Sense</em></div><span class="logo-sub">savings</span></div>
+    </div>
+  </div>
+  <div class="inner">
+    <div class="gap"></div>
+    <div id="savings-view-content"><div class="loading"><div class="spin"></div>Loading...</div></div>
+    <div class="gap"></div>
+  </div>
+</div>
+
 <!-- NAV -->
 <nav class="nav">
   <button class="nbtn active" onclick="goTo('home',this)">
@@ -419,6 +434,9 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
   </button>
   <button class="nbtn" onclick="goTo('graph',this)">
     <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Graphs
+  </button>
+  <button class="nbtn" onclick="goTo('savings',this)">
+    <svg viewBox="0 0 24 24"><ellipse cx="12" cy="8" rx="9" ry="4"/><path d="M3 8v8c0 2.21 4.03 4 9 4s9-1.79 9-4V8"/><path d="M3 12c0 2.21 4.03 4 9 4s9-1.79 9-4"/></svg>Savings
   </button>
   <button class="nbtn" onclick="goTo('settings',this)">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
@@ -441,7 +459,8 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
       <div class="type-toggle">
         <button class="type-btn active expense" id="type-expense" onclick="setType('expense')">− Expense</button>
         <button class="type-btn income" id="type-income" onclick="setType('income')">+ Income</button>
-        <button class="type-btn payslip" id="type-payslip" onclick="setType('payslip')">📄 Payslip</button>
+        <button class="type-btn payslip" id="type-payslip" onclick="setType('payslip')">📄 Payslip</button>         
+        <button class="type-btn savings" id="type-savings" onclick="setType('savings')">🪣 Savings</button>
       </div>
 
       <!-- Amount -->
@@ -512,6 +531,13 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
             <div class="net-box-part"><span>−less: </span><span id="nb-less">₱0</span></div>
           </div>
         </div>
+      </div>
+
+      <!-- Savings bucket selector -->
+      <div id="savings-section" style="display:none">
+        <div style="font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Select bucket</div>
+        <div id="savings-bucket-grid" class="cat-grid"></div>
+        <div class="field" style="margin-top:10px"><label>Label / memo</label><input type="text" id="sv-memo" placeholder="e.g. transfer from payslip..."></div>
       </div>
 
       <!-- Apply split toggle (income + payslip) -->
@@ -606,6 +632,7 @@ let currentMonth = new Date();
 let currentType = 'expense';
 let selectedCat = 'food';
 let graphPeriod = 'this';
+let selectedSavingsBucket = null;
 let buckets = [
   { id:'bk1', name:'WAR CHEST',   percent:20, color:'#818cf8' },
   { id:'bk2', name:'BIKE TAX',    percent:8,  color:'#f87171' },
@@ -738,6 +765,7 @@ function goTo(view, btn) {
   if (view==='home') renderTxList();
   if (view==='graph') renderGraphs();
   if (view==='settings') loadSettingsView();
+  if (view==='savings') renderSavingsView();
 }
 
 // ════════════════════════════════════════════════════════════
@@ -883,6 +911,16 @@ async function editTx(id) {
 
   // Set type — this resets the form sections
   setType(t.type || 'expense');
+  if (t.type === 'savings' && t.savingsBucketSnapshot) {
+    selectedSavingsBucket = t.savingsBucketSnapshot;
+    setTimeout(() => {
+      document.querySelectorAll('#savings-bucket-grid .cat-item').forEach(el => {
+        const isSelected = el.id === `svbkt-${t.savingsBucketSnapshot.id}`;
+        el.classList.toggle('selected', isSelected);
+        el.style.borderColor = isSelected ? t.savingsBucketSnapshot.color : '';
+      });
+    }, 0);
+  }
 
   // Set category
   selectedCat = t.category || (t.type==='expense'?'food':'salary');
@@ -931,7 +969,7 @@ async function editTx(id) {
   openModal('modal-tx');
 }
 
-async function updateTx(id) {
+  async function updateTx(id) {
   const existing = (await dbAll('transactions')).find(x=>x.id===id);
   if (!existing) return;
 
@@ -944,9 +982,14 @@ async function updateTx(id) {
   if (!amount || !date) { toast('Fill in amount and date.'); return; }
 
   let payslipData = existing.payslipData;
+  let savingsBucketSnapshot = existing.savingsBucketSnapshot || null;
   let category = selectedCat;
 
-  if (currentType === 'payslip') {
+  if (currentType === 'savings') {
+    if (!selectedSavingsBucket) { toast('Select a bucket first.'); return; }
+    savingsBucketSnapshot = { id: selectedSavingsBucket.id, name: selectedSavingsBucket.name, color: selectedSavingsBucket.color };
+    category = 'savings';
+  } else if (currentType === 'payslip') {
     category = 'salary';
     const g = id => parseFloat(document.getElementById(id)?.value)||0;
     payslipData = {
@@ -958,11 +1001,11 @@ async function updateTx(id) {
     };
   }
 
-  const updated = {
+const updated = {
     ...existing,
     date, type: currentType, category,
-    description: desc || catInfo(category).label,
-    amount, applySplit, payslipData, notes,
+    description: desc || (currentType==='savings' ? (savingsBucketSnapshot?.name||'Savings') : catInfo(category).label),
+    amount, applySplit, payslipData, savingsBucketSnapshot, notes,
     synced: false, updatedAt: Date.now()
   };
 
@@ -1006,20 +1049,25 @@ function showAddTx() {
   });
   document.getElementById('net-box-val').textContent='₱—';
   document.getElementById('net-box-val').style.color='var(--text3)';
+  document.getElementById('sv-memo').value='';
+  selectedSavingsBucket = buckets[0] || null;
   setType('expense');
   openModal('modal-tx');
 }
 
 function setType(type) {
   currentType = type;
-  ['expense','income','payslip'].forEach(t => {
+  ['expense','income','payslip','savings'].forEach(t => {
     document.getElementById('type-'+t).classList.toggle('active', t===type);
   });
-  document.getElementById('cat-section').style.display = type==='payslip'?'none':'block';
+  document.getElementById('cat-section').style.display = (type==='payslip'||type==='savings')?'none':'block';
   document.getElementById('payslip-section').style.display = type==='payslip'?'block':'none';
+  document.getElementById('savings-section').style.display = type==='savings'?'block':'none';
+  if (type==='savings') renderSavingsBucketGrid();
   const splitRow = document.getElementById('split-toggle-row');
   const splitSub = document.getElementById('split-toggle-sub');
-  splitRow.style.display='block';
+  splitRow.style.display = type==='savings' ? 'none' : 'block';
+  document.getElementById('split-preview-wrap').style.display = type==='savings' ? 'none' : document.getElementById('split-preview-wrap').style.display;
   if (type==='expense') {
     splitSub.textContent = 'Deduct this expense from a savings bucket?';
     document.getElementById('tx-apply-split').checked = false;
@@ -1033,7 +1081,27 @@ function setType(type) {
   renderCatGrid(type==='expense'?EXP_CATS:INC_CATS);
   if (type==='payslip') selectedCat='salary';
   else selectedCat = type==='expense'?'food':'salary';
-  document.getElementById('tx-submit-btn').textContent = type==='payslip'?'Save Payslip':'Save Entry';
+  document.getElementById('tx-submit-btn').textContent = type==='payslip'?'Save Payslip':type==='savings'?'Save to Bucket':'Save Entry';
+}
+
+function renderSavingsBucketGrid() {
+  selectedSavingsBucket = buckets[0] || null;
+  document.getElementById('savings-bucket-grid').innerHTML = buckets.map((b,i) =>
+    `<div class="cat-item ${i===0?'selected':''}" id="svbkt-${b.id}" onclick="selectSavingsBucket('${b.id}',this)" style="border-color:${i===0?b.color:''}">
+      <span class="ci-icon" style="width:14px;height:14px;border-radius:50%;background:${b.color};display:inline-block"></span>
+      <span class="ci-label">${b.name}</span>
+    </div>`
+  ).join('');
+}
+
+function selectSavingsBucket(id, el) {
+  selectedSavingsBucket = buckets.find(b=>b.id===id) || null;
+  document.querySelectorAll('#savings-bucket-grid .cat-item').forEach(e=>{
+    e.classList.remove('selected');
+    e.style.borderColor='';
+  });
+  el.classList.add('selected');
+  if (selectedSavingsBucket) el.style.borderColor = selectedSavingsBucket.color;
 }
 
 function renderCatGrid(cats) {
@@ -1106,8 +1174,10 @@ const applySplit = document.getElementById('tx-apply-split').checked;
 
   if (!amount || !date) { toast('Fill in amount and date.'); return; }
 
-  let payslipData = null;
+let payslipData = null;
   let category = selectedCat;
+  let savingsBucketSnapshot = null;
+
   if (currentType === 'payslip') {
     category = 'salary';
     const g = id => parseFloat(document.getElementById(id)?.value)||0;
@@ -1118,7 +1188,22 @@ const applySplit = document.getElementById('tx-apply-split').checked;
       sss: g('ps-sss'), hdmf: g('ps-hdmf'), philhealth: g('ps-ph'), wtax: g('ps-wtax'), loans: g('ps-loans'),
       tardiness: g('ps-tard'), undertime: g('ps-under'), absences: g('ps-abs'), slryHldy: g('ps-slry')
     };
+  } else if (currentType === 'savings') {
+    if (!selectedSavingsBucket) { toast('Select a bucket first.'); return; }
+    // Snapshot the bucket at time of save — name/color frozen forever
+    savingsBucketSnapshot = {
+      id:    selectedSavingsBucket.id,
+      name:  selectedSavingsBucket.name,
+      color: selectedSavingsBucket.color
+    };
+    category = 'savings';
   }
+
+  const tx = {
+    id: genId('TX'), date, type: currentType, category,
+    description: desc || (currentType==='savings' ? (savingsBucketSnapshot?.name||'Savings') : catInfo(category).label),
+    amount, applySplit, payslipData, savingsBucketSnapshot, notes, synced: false, createdAt: Date.now()
+  };
 
   const tx = {
     id: genId('TX'), date, type: currentType, category,
@@ -1444,6 +1529,89 @@ async function pullFromSheets() {
   } catch(e) {
     setSyncPill(isOnline ? 'online' : 'offline');
   }
+}
+
+// ════════════════════════════════════════════════════════════
+// SAVINGS VIEW
+// ════════════════════════════════════════════════════════════
+async function renderSavingsView() {
+  const txs = await dbAll('transactions');
+  const savingsTxs = txs.filter(t => t.type === 'savings' && t.savingsBucketSnapshot);
+  const wcGoal  = parseFloat(await getSetting('wc_goal','100000'));
+  const wcSaved = parseFloat(await getSetting('wc_saved','0'));
+
+  // Group savings entries by their snapshot bucket id
+  const byBucket = {};
+  savingsTxs.forEach(t => {
+    const snap = t.savingsBucketSnapshot;
+    if (!byBucket[snap.id]) byBucket[snap.id] = { id: snap.id, name: snap.name, color: snap.color, total: 0, entries: [] };
+    byBucket[snap.id].total += t.amount || 0;
+    byBucket[snap.id].entries.push(t);
+  });
+
+  // Also include current buckets that have no entries yet
+  buckets.forEach(b => {
+    if (!byBucket[b.id]) byBucket[b.id] = { id: b.id, name: b.name, color: b.color, total: 0, entries: [] };
+  });
+
+  const grandTotal = Object.values(byBucket).reduce((a,b) => a+b.total, 0);
+
+  let html = '';
+
+  // Grand total card
+  html += `<div class="card" style="margin-bottom:12px">
+    <div class="card-title">Total saved (all buckets)</div>
+    <div style="font-size:28px;font-weight:700;color:var(--green);margin-bottom:4px">${php(grandTotal)}</div>
+    <div style="font-size:12px;color:var(--text3)">${savingsTxs.length} savings entries logged</div>
+  </div>`;
+
+  // WAR CHEST progress if goal set
+  const warChestBucket = Object.values(byBucket).find(b => b.name === 'WAR CHEST') || null;
+  const warChestTotal = (warChestBucket ? warChestBucket.total : 0) + wcSaved;
+  const wcPct = Math.min(100, (warChestTotal / wcGoal) * 100);
+  html += `<div class="card" style="margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+      <div class="card-title" style="margin-bottom:0">WAR CHEST goal</div>
+      <div style="font-size:12px;color:var(--text3)">${php(warChestTotal)} / ${php(wcGoal)}</div>
+    </div>
+    <div style="background:var(--bg4);border-radius:99px;height:8px;overflow:hidden;margin-bottom:6px">
+      <div style="height:100%;width:${wcPct.toFixed(1)}%;background:var(--acc);border-radius:99px;transition:width .4s"></div>
+    </div>
+    <div style="font-size:11px;color:var(--text3)">${wcPct.toFixed(1)}% · ${php(wcGoal - warChestTotal)} remaining</div>
+  </div>`;
+
+  // Per-bucket cards
+  const sortedBuckets = Object.values(byBucket).sort((a,b) => b.total - a.total);
+  sortedBuckets.forEach(bkt => {
+    const sortedEntries = [...bkt.entries].sort((a,b) => new Date(b.date) - new Date(a.date));
+    html += `<div class="card" style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="width:12px;height:12px;border-radius:50%;background:${bkt.color};flex-shrink:0"></div>
+        <div style="font-size:14px;font-weight:700;flex:1">${bkt.name}</div>
+        <div style="font-size:16px;font-weight:700;color:var(--acc2)">${php(bkt.total)}</div>
+      </div>`;
+    if (sortedEntries.length) {
+      html += `<div style="border-top:1px solid var(--border);padding-top:8px">`;
+      sortedEntries.slice(0,5).forEach(t => {
+        html += `<div style="display:flex;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:500">${t.description||bkt.name}</div>
+            <div style="font-size:11px;color:var(--text3)">${fmtDate(t.date)}${t.notes?' · '+t.notes:''}</div>
+          </div>
+          <div style="font-size:14px;font-weight:700;color:var(--green)">+${php(t.amount)}</div>
+        </div>`;
+      });
+      if (sortedEntries.length > 5) {
+        html += `<div style="font-size:12px;color:var(--text3);text-align:center;padding-top:8px">${sortedEntries.length - 5} more entries</div>`;
+      }
+      html += `</div>`;
+    } else {
+      html += `<div style="font-size:12px;color:var(--text3)">No savings logged yet</div>`;
+    }
+    html += `</div>`;
+  });
+
+  document.getElementById('savings-view-content').innerHTML = html;
 }
 
 // ════════════════════════════════════════════════════════════

@@ -182,10 +182,134 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
 .gp-btn{padding:5px 14px;border-radius:99px;font-size:12px;font-weight:600;border:1px solid var(--border2);color:var(--text3);background:transparent;cursor:pointer;white-space:nowrap;flex-shrink:0}
 .gp-btn.active{background:rgba(129,140,248,.15);color:var(--acc2);border-color:var(--acc)}
 .gap{height:16px}.gap-sm{height:10px}
+
+/* ═══ DESKTOP LAYOUT (≥900px) ════════════════════════════════ */
+@media(min-width:900px){
+  /* Scrollbars visible on desktop */
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:3px}
+
+  html,body{overflow:hidden}
+
+  /* Root app: sidebar + main content side by side */
+  #app{flex-direction:row;height:100dvh;overflow:hidden}
+
+  /* ── Sidebar nav ── */
+  .nav{
+    position:relative;bottom:auto;left:auto;right:auto;
+    width:220px;flex-shrink:0;
+    flex-direction:column;align-items:stretch;
+    border-top:none;border-right:1px solid var(--border);
+    padding-bottom:0;padding-top:24px;
+    background:var(--bg2);
+    justify-content:flex-start;gap:4px;
+  }
+  .nbtn{
+    flex:none;flex-direction:row;justify-content:flex-start;
+    gap:12px;padding:11px 20px;border-radius:10px;
+    font-size:13px;text-transform:none;letter-spacing:0;
+    margin:0 10px;width:auto;
+  }
+  .nbtn svg{width:18px;height:18px}
+  .nbtn.active{background:rgba(129,140,248,.12)}
+
+  /* Sidebar logo */
+  .sidebar-logo{
+    padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:8px;
+    font-size:20px;font-weight:700;letter-spacing:-.02em;color:var(--text);
+  }
+  .sidebar-logo em{color:var(--acc);font-style:normal}
+  .sidebar-logo span{display:block;font-size:11px;color:var(--text3);font-weight:400;margin-top:2px;letter-spacing:.02em}
+
+  /* Sidebar bottom: sync pill */
+  .sidebar-bottom{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)}
+
+  /* ── Main area: topbar hidden, content fills ── */
+  .topbar{display:none}
+
+  /* All views share one scrollable main column */
+  .view{padding-bottom:0;overflow-y:auto;min-width:0;flex:1}
+  .view.active{display:block}
+
+  /* Views that aren't active hidden; active ones fill the right column */
+  #view-home,#view-graph,#view-savings,#view-settings{display:none}
+  #view-home.active,#view-graph.active,#view-savings.active,#view-settings.active{display:block;flex:1;overflow-y:auto;min-width:0}
+
+  /* ── HOME: two-column layout ── */
+  #view-home.active{display:grid;grid-template-rows:auto auto 1fr;grid-template-columns:1fr}
+
+  /* Summary banner wider */
+  .summary-banner{padding:28px 32px}
+  .sb-inner{max-width:none}
+  .sb-row{grid-template-columns:repeat(3,auto);justify-content:flex-start;gap:48px}
+  .sb-item+.sb-item{border-left:none}
+  .sb-item{text-align:left}
+  .sb-val{font-size:28px}
+  .sb-month{font-size:13px;margin-bottom:14px}
+
+  /* Month selector */
+  .month-sel{padding:14px 32px}
+  .month-sel-inner{max-width:none}
+
+  /* Transaction list wider, no mobile max-width caps */
+  #tx-list{flex:1;overflow-y:auto;padding:0 32px 32px}
+  .tx-day-header{padding:14px 0 6px;max-width:none}
+  .tx-item{max-width:none;padding:13px 16px;border-radius:10px;margin-bottom:2px;border:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .tx-card{background:transparent;margin:0}
+
+  /* ── GRAPH view ── */
+  #view-graph .inner{max-width:none;padding:28px 32px}
+  .graph-period-row{padding:16px 32px 0}
+  #view-graph .inner .card{margin-bottom:16px}
+
+  /* Two-up graph cards */
+  .graph-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+  /* ── SAVINGS view ── */
+  #view-savings .inner{max-width:none;padding:28px 32px}
+
+  /* ── SETTINGS view ── */
+  #view-settings .inner{max-width:680px;padding:28px 32px}
+  #view-settings .inner .card{margin-bottom:16px}
+
+  /* FAB repositioned */
+  .fab{bottom:32px;right:32px;width:56px;height:56px}
+  .fab svg{width:26px;height:26px}
+
+  /* Modal centered on desktop */
+  .overlay{align-items:center;justify-content:center}
+  .modal{border-radius:20px;max-width:520px;width:100%;max-height:88dvh}
+  .modal-handle{display:none}
+
+  /* Toast higher */
+  .toast{bottom:40px}
+
+  /* inner padding for all content areas */
+  .view > .inner{padding-left:32px;padding-right:32px;max-width:none}
+}
 </style>
 </head>
 <body>
 <div id="app">
+
+<!-- NAV / SIDEBAR -->
+<nav class="nav">
+  <div class="sidebar-logo">Spend<em>Sense</em><span>by baekwun</span></div>
+  <button class="nbtn active" onclick="goTo('home',this)">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Ledger
+  </button>
+  <button class="nbtn" onclick="goTo('graph',this)">
+    <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Graphs
+  </button>
+  <button class="nbtn" onclick="goTo('savings',this)">
+    <svg viewBox="0 0 24 24"><ellipse cx="12" cy="8" rx="9" ry="4"/><path d="M3 8v8c0 2.21 4.03 4 9 4s9-1.79 9-4V8"/><path d="M3 12c0 2.21 4.03 4 9 4s9-1.79 9-4"/></svg>Savings
+  </button>
+  <button class="nbtn" onclick="goTo('settings',this)">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
+  </button>
+  <div class="sidebar-bottom"><span class="pill" id="sync-pill-desk">—</span></div>
+</nav>
 
 <!-- HOME -->
 <div id="view-home" class="view active">
@@ -238,8 +362,10 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
         <span style="font-size:12px;color:var(--text3)"><span style="color:var(--red);font-weight:700">■</span> Expense</span>
       </div>
     </div>
+    <div class="graph-grid">
     <div class="card"><div class="card-title">Expense breakdown</div><div class="donut-wrap" id="expense-donut"><div style="color:var(--text3);font-size:12px">No data</div></div></div>
     <div class="card"><div class="card-title">Income sources</div><div class="donut-wrap" id="income-donut"><div style="color:var(--text3);font-size:12px">No data</div></div></div>
+    </div>
     <div class="card"><div class="card-title">Net flow by month</div><div id="net-flow-chart" style="min-height:70px"><div style="color:var(--text3);font-size:12px">No data yet</div></div></div>
     <div class="card"><div class="card-title">Savings split — last income</div><div id="graph-buckets"><div style="color:var(--text3);font-size:12px">Add an income entry first</div></div></div>
     <div class="gap"></div>
@@ -294,21 +420,6 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
   </div>
 </div>
 
-<!-- NAV -->
-<nav class="nav">
-  <button class="nbtn active" onclick="goTo('home',this)">
-    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Ledger
-  </button>
-  <button class="nbtn" onclick="goTo('graph',this)">
-    <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Graphs
-  </button>
-  <button class="nbtn" onclick="goTo('savings',this)">
-    <svg viewBox="0 0 24 24"><ellipse cx="12" cy="8" rx="9" ry="4"/><path d="M3 8v8c0 2.21 4.03 4 9 4s9-1.79 9-4V8"/><path d="M3 12c0 2.21 4.03 4 9 4s9-1.79 9-4"/></svg>Savings
-  </button>
-  <button class="nbtn" onclick="goTo('settings',this)">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
-  </button>
-</nav>
 </div>
 
 <!-- FAB -->
@@ -627,7 +738,14 @@ function monthKey(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStar
 function monthLabel(d){return `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;}
 function genId(p){return p+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,6);}
 function catInfo(cat){return CAT_MAP[cat]||{emoji:'📌',label:cat,color:'#94a3b8'};}
-function setSyncPill(s){const el=document.getElementById('sync-pill');el.className='pill '+s;el.textContent=s==='online'?'online':s==='offline'?'offline':'syncing…';}
+function setSyncPill(s){
+  const labels={online:'online',offline:'offline',syncing:'syncing…'};
+  const txt=labels[s]||s;
+  ['sync-pill','sync-pill-desk'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.className='pill '+s;el.textContent=txt;}
+  });
+}
 function toast(msg,dur=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}

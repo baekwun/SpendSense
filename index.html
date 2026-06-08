@@ -732,7 +732,7 @@ async function pullFromSupabase(){
 
 // ═══ HELPERS ══════════════════════════════════════════════════
 function php(n,d=2){return '₱'+parseFloat(n||0).toLocaleString('en-PH',{minimumFractionDigits:d,maximumFractionDigits:d});}
-function phpK(n){return '₱'+Math.round(n||0).toLocaleString();}
+function phpK(n){return '₱'+parseFloat(n||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmtDate(d){if(!d)return '—';try{return new Date(d+'T00:00:00').toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});}catch(e){return d;}}
 function monthKey(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
 function monthLabel(d){return `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;}
@@ -848,9 +848,20 @@ async function viewTx(id){
   if(t.applySplit&&t.amount>0){
     const isDeduction=t.type==='expense';
     const sign=isDeduction?'−':'+';
-    const sc=isDeduction?'color:var(--red)':'';
-    body+=`<div class="card"><div class="card-title">${isDeduction?'Deducted from buckets':'Savings split'}</div><div class="split-preview">`;
-    buckets.forEach(b=>{body+=`<div class="split-item"><div class="split-dot" style="background:${b.color}"></div><div class="split-name" style="color:${b.color}">${b.name}</div><div class="split-desc">${b.percent}%</div><div class="split-amt" style="${sc}">${sign}${php(t.amount*b.percent/100)}</div></div>`;});
+    const sc=isDeduction?'color:var(--red)':'color:var(--green)';
+    let totalSplit=0;
+    body+=`<div class="card"><div class="card-title">${isDeduction?'Deducted from buckets':'Savings split — enter these as individual savings entries'}</div><div class="split-preview">`;
+    buckets.forEach(b=>{
+      const bAmt=t.amount*b.percent/100;
+      totalSplit+=bAmt;
+      body+=`<div class="split-item"><div class="split-dot" style="background:${b.color}"></div><div class="split-name" style="color:${b.color}">${b.name}</div><div class="split-desc">${b.percent}%</div><div class="split-amt" style="${sc}">${sign}${php(bAmt)}</div></div>`;
+    });
+    body+=`<div class="split-item" style="border-top:1px solid var(--border2);margin-top:4px;padding-top:10px">
+      <div class="split-dot" style="background:transparent"></div>
+      <div class="split-name" style="color:var(--text2)">Total to save</div>
+      <div class="split-desc" style="color:var(--text3);font-size:10px">log each bucket above</div>
+      <div class="split-amt" style="color:var(--acc2);font-size:15px;font-weight:800">${php(totalSplit)}</div>
+    </div>`;
     body+=`</div></div>`;
   }
   body+=`<button class="btn btn-p" style="margin-bottom:0" onclick="editTx('${t.id}')">✏ Edit Entry</button>
@@ -1039,12 +1050,24 @@ function onSplitToggle(){
   if(apply&&amt>0){
     wrap.style.display='block';
     const isDeduction=currentType==='expense';
-    document.getElementById('split-preview-title').textContent=isDeduction?'Deducted from buckets':'Savings split';
+    document.getElementById('split-preview-title').textContent=isDeduction?'Savings buckets affected (expense deduction)':'Savings split — enter each as a savings entry';
     const sign=isDeduction?'−':'+';
-    const sc=isDeduction?'color:var(--red)':'';
-    document.getElementById('split-preview-inner').innerHTML=buckets.map(b=>
-      `<div class="split-item"><div class="split-dot" style="background:${b.color}"></div><div class="split-name" style="color:${b.color}">${b.name}</div><div class="split-desc">${b.percent}%</div><div class="split-amt" style="${sc}">${sign}${php(amt*b.percent/100)}</div></div>`
-    ).join('');
+    const sc=isDeduction?'color:var(--red)':'color:var(--green)';
+    let totalSplit=0;
+    const rows=buckets.map(b=>{
+      const bAmt=parseFloat((amt*b.percent/100).toFixed(2));
+      totalSplit+=bAmt;
+      return `<div class="split-item"><div class="split-dot" style="background:${b.color}"></div><div class="split-name" style="color:${b.color}">${b.name}</div><div class="split-desc">${b.percent}%</div><div class="split-amt" style="${sc}">${sign}${php(bAmt)}</div></div>`;
+    }).join('');
+    const totalLabel=isDeduction?'Total deducted from savings':'Total to save';
+    const totalHint=isDeduction?'these amounts reduce each bucket balance':'log each bucket amount above as a savings entry';
+    const totalRow=`<div class="split-item" style="border-top:1px solid var(--border2);margin-top:4px;padding-top:10px">
+      <div class="split-dot" style="background:transparent"></div>
+      <div class="split-name" style="color:var(--text2)">${totalLabel}</div>
+      <div class="split-desc" style="color:var(--text3);font-size:10px">${totalHint}</div>
+      <div class="split-amt" style="color:${isDeduction?'var(--red)':'var(--acc2)'};font-size:15px;font-weight:800">${sign}${php(totalSplit)}</div>
+    </div>`;
+    document.getElementById('split-preview-inner').innerHTML=rows+totalRow;
   }else{wrap.style.display='none';}
 }
 

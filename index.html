@@ -361,7 +361,7 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
       <div class="card-title">Net flow by month</div>
       <div id="net-flow-chart" style="min-height:70px"><div style="color:var(--text3);font-size:12px">No data yet</div></div>
     </div>
-    <!-- savings buckets -->
+    <!-- Savings buckets -->
     <div class="card" id="graph-buckets-card">
       <div class="card-title">Savings split — last income</div>
       <div id="graph-buckets"><div style="color:var(--text3);font-size:12px">Add an income entry first</div></div>
@@ -391,12 +391,12 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
     <div class="card">
       <div class="card-title">WAR CHEST — ₱100k Goal</div>
       <div class="srow"><div><div class="srow-label">Goal amount</div></div><input class="sinput" type="number" id="s-wc-goal" value="100000"></div>
-      <div class="srow"><div><div class="srow-label">Amount saved so far</div><div class="srow-sub">Update manually after moving to Savings</div></div><input class="sinput" type="number" id="s-wc-saved" value="0"></div>
+      <div class="srow"><div><div class="srow-label">Amount saved so far</div><div class="srow-sub">Update manually after transferring to savings</div></div><input class="sinput" type="number" id="s-wc-saved" value="0"></div>
     </div>
     <!-- Buckets -->
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-        <div class="card-title" style="margin-bottom:0">Savings Bucket</div>
+        <div class="card-title" style="margin-bottom:0">Savings Buckets</div>
         <button class="btn-sm" onclick="openBucketEditor()">✏ Edit</button>
       </div>
       <div id="settings-buckets-list"></div>
@@ -518,7 +518,7 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
       <div id="split-toggle-row" style="display:none" class="card" style="margin-bottom:14px">
         <div class="toggle-row" style="padding:0;border:none">
           <div>
-            <div class="toggle-label">Apply Savings split?</div>
+            <div class="toggle-label">Apply savings split?</div>
             <div class="toggle-sub" id="split-toggle-sub">Show how to distribute this income to your buckets</div>
           </div>
           <label class="switch"><input type="checkbox" id="tx-apply-split" checked onchange="onSplitToggle()"><span class="slider-sw"></span></label>
@@ -856,10 +856,126 @@ async function viewTx(id) {
     body += `</div></div>`;
   }
 
-  body += `<button class="btn btn-d" onclick="deleteTx('${t.id}')">Delete Entry</button>
+  body += `<button class="btn btn-p" style="margin-bottom:0" onclick="editTx('${t.id}')">✏ Edit Entry</button>
+    <button class="btn btn-d" onclick="deleteTx('${t.id}')">Delete Entry</button>
     <button class="btn btn-g" onclick="closeModal('modal-tx-detail')">Close</button>`;
   document.getElementById('td-body').innerHTML = body;
   openModal('modal-tx-detail');
+}
+
+// ════════════════════════════════════════════════════════════
+// EDIT TRANSACTION
+// ════════════════════════════════════════════════════════════
+async function editTx(id) {
+  const t = (await dbAll('transactions')).find(x=>x.id===id);
+  if (!t) return;
+
+  closeModal('modal-tx-detail');
+
+  // Pre-fill all fields same as showAddTx but with existing data
+  document.getElementById('tx-amount').value = t.amount || '';
+  document.getElementById('tx-date').value = t.date || new Date().toISOString().split('T')[0];
+  document.getElementById('tx-desc').value = t.description || '';
+  document.getElementById('tx-notes').value = t.notes || '';
+
+  // Set type — this resets the form sections
+  setType(t.type || 'expense');
+
+  // Set category
+  selectedCat = t.category || (t.type==='expense'?'food':'salary');
+  // Re-render cat grid with correct selection
+  renderCatGrid(t.type==='expense'?EXP_CATS:INC_CATS);
+  // Manually mark selected after render
+  setTimeout(() => {
+    document.querySelectorAll('.cat-item').forEach(el => {
+      el.classList.toggle('selected', el.getAttribute('onclick')?.includes(`'${selectedCat}'`));
+    });
+  }, 0);
+
+  // Apply split toggle
+  if (t.type !== 'expense') {
+    document.getElementById('tx-apply-split').checked = !!t.applySplit;
+    onSplitToggle();
+  }
+
+  // Pre-fill payslip fields if payslip type
+  if (t.type === 'payslip' && t.payslipData) {
+    const p = typeof t.payslipData==='string' ? JSON.parse(t.payslipData) : t.payslipData;
+    const setVal = (id, val) => { const el=document.getElementById(id); if(el) el.value=val||''; };
+    setVal('ps-period', p.period);
+    setVal('ps-days',   p.numDays);
+    setVal('ps-basic',  p.basicPay);
+    setVal('ps-ot',     p.ot);
+    setVal('ps-hol',    p.holidays);
+    setVal('ps-sss',    p.sss);
+    setVal('ps-hdmf',   p.hdmf);
+    setVal('ps-ph',     p.philhealth);
+    setVal('ps-wtax',   p.wtax);
+    setVal('ps-loans',  p.loans);
+    setVal('ps-tard',   p.tardiness);
+    setVal('ps-under',  p.undertime);
+    setVal('ps-abs',    p.absences);
+    setVal('ps-slry',   p.slryHldy);
+    calcPayslipNet();
+  }
+
+  // Change submit button to update mode
+  const submitBtn = document.getElementById('tx-submit-btn');
+  submitBtn.textContent = t.type==='payslip' ? 'Update Payslip' : 'Update Entry';
+  submitBtn.onclick = () => updateTx(id);
+
+  document.getElementById('modal-tx').querySelector('.modal-title').textContent = 'Edit Entry';
+  openModal('modal-tx');
+}
+
+async function updateTx(id) {
+  const existing = (await dbAll('transactions')).find(x=>x.id===id);
+  if (!existing) return;
+
+  let amount = parseFloat(document.getElementById('tx-amount').value)||0;
+  const date = document.getElementById('tx-date').value;
+  const desc = document.getElementById('tx-desc').value;
+  const notes = document.getElementById('tx-notes').value;
+  const applySplit = currentType!=='expense' && document.getElementById('tx-apply-split').checked;
+
+  if (!amount || !date) { toast('Fill in amount and date.'); return; }
+
+  let payslipData = existing.payslipData;
+  let category = selectedCat;
+
+  if (currentType === 'payslip') {
+    category = 'salary';
+    const g = id => parseFloat(document.getElementById(id)?.value)||0;
+    payslipData = {
+      period: document.getElementById('ps-period')?.value||'',
+      numDays: g('ps-days'), basicPay: g('ps-basic'),
+      ot: g('ps-ot'), holidays: g('ps-hol'),
+      sss: g('ps-sss'), hdmf: g('ps-hdmf'), philhealth: g('ps-ph'), wtax: g('ps-wtax'), loans: g('ps-loans'),
+      tardiness: g('ps-tard'), undertime: g('ps-under'), absences: g('ps-abs'), slryHldy: g('ps-slry')
+    };
+  }
+
+  const updated = {
+    ...existing,
+    date, type: currentType, category,
+    description: desc || catInfo(category).label,
+    amount, applySplit, payslipData, notes,
+    synced: false, updatedAt: Date.now()
+  };
+
+  await dbPut('transactions', updated);
+
+  // Reset submit button back to normal
+  const submitBtn = document.getElementById('tx-submit-btn');
+  submitBtn.textContent = 'Save Entry';
+  submitBtn.onclick = submitTx;
+  document.getElementById('modal-tx').querySelector('.modal-title').textContent = 'New Entry';
+
+  closeModal('modal-tx');
+  toast('Updated!'+(isOnline?'':' (offline)'));
+  currentMonth = new Date(date+'T00:00:00');
+  renderTxList();
+  if (isOnline) syncPending();
 }
 
 async function deleteTx(id) {
@@ -906,10 +1022,10 @@ function setType(type) {
   } else {
     splitRow.style.display='block';
     if (type==='payslip') {
-      splitSub.textContent = 'Show Savings split for this payslip';
+      splitSub.textContent = 'Show savings split for this payslip';
       document.getElementById('tx-apply-split').checked = true;
     } else {
-      splitSub.textContent = 'Include in Savings bucket calculation?';
+      splitSub.textContent = 'Include in savings bucket calculation?';
     }
     onSplitToggle();
   }

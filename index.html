@@ -13,89 +13,54 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:      #0f0f18;
-  --bg2:     #161622;
-  --bg3:     #1e1e2e;
-  --bg4:     #2a2a3e;
-  --bg5:     #333350;
-  --acc:     #818cf8;
-  --acc2:    #a5b4fc;
-  --green:   #4ade80;
-  --red:     #f87171;
-  --amber:   #fbbf24;
-  --blue:    #60a5fa;
-  --pink:    #f472b6;
-  --text:    #f1f1fa;
-  --text2:   #9898b8;
-  --text3:   #55557a;
-  --border:  rgba(255,255,255,0.06);
-  --border2: rgba(255,255,255,0.11);
-  --sans: 'Space Grotesk', sans-serif;
-  --r: 16px; --rs: 10px; --rx: 24px;
+  --bg:#0f0f18;--bg2:#161622;--bg3:#1e1e2e;--bg4:#2a2a3e;--bg5:#333350;
+  --acc:#818cf8;--acc2:#a5b4fc;--green:#4ade80;--red:#f87171;--amber:#fbbf24;
+  --blue:#60a5fa;--pink:#f472b6;--text:#f1f1fa;--text2:#9898b8;--text3:#55557a;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);
+  --sans:'Space Grotesk',sans-serif;--r:16px;--rs:10px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;background:var(--bg)}
 body{font-family:var(--sans);color:var(--text);font-size:15px;-webkit-font-smoothing:antialiased}
 ::-webkit-scrollbar{width:0}
 input,select,button{font-family:var(--sans)}
-
-/* ── Layout ── */
 #app{display:flex;flex-direction:column;height:100dvh}
 .view{display:none;flex:1;overflow-y:auto;padding-bottom:68px}
 .view.active{display:block}
 .inner{max-width:480px;margin:0 auto;padding:0 16px}
-
-/* ── Topbar ── */
 .topbar{position:sticky;top:0;z-index:10;background:rgba(15,15,24,0.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
 .topbar-inner{max-width:480px;margin:0 auto;padding:13px 16px 11px;display:flex;align-items:center;justify-content:space-between}
 .logo{font-size:19px;font-weight:700;color:var(--text);letter-spacing:-.02em}
 .logo em{color:var(--acc);font-style:normal}
 .logo-sub{font-size:10px;color:var(--text3);display:block;font-weight:400;letter-spacing:.02em}
-.tbtn{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:var(--rs);padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s}
-.tbtn:active{background:var(--bg4)}
+.tbtn{background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:var(--rs);padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer}
 .topbar-right{display:flex;align-items:center;gap:8px}
-
-/* ── Status pill ── */
 .pill{font-size:10px;font-weight:600;padding:3px 9px;border-radius:99px;letter-spacing:.04em;text-transform:uppercase}
 .pill.online{background:rgba(74,222,128,.12);color:var(--green)}
 .pill.offline{background:rgba(251,191,36,.12);color:var(--amber)}
 .pill.syncing{background:rgba(129,140,248,.12);color:var(--acc)}
-
-/* ── Bottom Nav ── */
 .nav{position:fixed;bottom:0;left:0;right:0;z-index:20;background:var(--bg2);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom,0px)}
-.nbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;border:none;background:transparent;color:var(--text3);font-size:10px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;transition:color .2s;position:relative}
-.nbtn svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;transition:stroke .2s}
+.nbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;border:none;background:transparent;color:var(--text3);font-size:10px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;transition:color .2s}
+.nbtn svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .nbtn.active{color:var(--acc)}
 .nbtn.active svg{stroke:var(--acc)}
-.nbtn .dot{position:absolute;top:6px;right:calc(50% - 16px);width:6px;height:6px;background:var(--red);border-radius:50%;border:2px solid var(--bg2);display:none}
-.nbtn .dot.show{display:block}
-
-/* ── FAB ── */
-.fab{position:fixed;bottom:80px;right:18px;z-index:15;width:52px;height:52px;border-radius:50%;background:var(--acc);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(129,140,248,.4);transition:transform .15s,box-shadow .15s}
-.fab:active{transform:scale(.93);box-shadow:0 2px 10px rgba(129,140,248,.3)}
+.fab{position:fixed;bottom:80px;right:18px;z-index:15;width:52px;height:52px;border-radius:50%;background:var(--acc);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(129,140,248,.4);transition:transform .15s}
+.fab:active{transform:scale(.93)}
 .fab svg{width:24px;height:24px;stroke:white;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-
-/* ── Summary banner ── */
 .summary-banner{background:linear-gradient(135deg,#1e1e35 0%,#252540 100%);border-bottom:1px solid var(--border);padding:16px}
 .sb-inner{max-width:480px;margin:0 auto}
 .sb-month{font-size:12px;color:var(--text3);font-weight:500;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em}
-.sb-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
+.sb-row{display:grid;grid-template-columns:1fr 1fr 1fr}
 .sb-item{text-align:center;padding:4px 0}
 .sb-item+.sb-item{border-left:1px solid var(--border)}
 .sb-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;font-weight:500}
 .sb-val{font-size:17px;font-weight:700}
-.sb-val.inc{color:var(--green)}
-.sb-val.exp{color:var(--red)}
-.sb-val.bal{color:var(--text)}
-
-/* ── Month selector ── */
-.month-sel{display:flex;align-items:center;justify-content:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)}
+.sb-val.inc{color:var(--green)}.sb-val.exp{color:var(--red)}.sb-val.bal{color:var(--text)}
+.month-sel{display:flex;align-items:center;justify-content:center;padding:12px 16px;border-bottom:1px solid var(--border)}
 .month-sel-inner{max-width:480px;width:100%;display:flex;align-items:center;justify-content:space-between}
 .msel-btn{background:transparent;border:none;color:var(--text2);cursor:pointer;padding:4px 8px;border-radius:var(--rs)}
 .msel-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.msel-label{font-size:15px;font-weight:600;color:var(--text);cursor:pointer}
-
-/* ── Transaction list ── */
+.msel-label{font-size:15px;font-weight:600;color:var(--text)}
 .tx-day-group{margin-bottom:2px}
 .tx-day-header{padding:10px 16px 6px;display:flex;justify-content:space-between;align-items:center;max-width:480px;margin:0 auto}
 .tx-day-label{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em}
@@ -111,29 +76,17 @@ input,select,button{font-family:var(--sans)}
 .tx-cat{font-size:11px;color:var(--text3);margin-top:1px}
 .tx-right{text-align:right;flex-shrink:0}
 .tx-amt{font-size:15px;font-weight:700}
-.tx-amt.inc{color:var(--green)}.tx-amt.exp{color:var(--red)}
-.tx-time{font-size:11px;color:var(--text3);margin-top:1px}
+.tx-amt.inc{color:var(--green)}.tx-amt.exp{color:var(--red)}.tx-amt.sav{color:var(--acc2)}
 .offline-dot{display:inline-block;width:5px;height:5px;background:var(--amber);border-radius:50%;margin-left:4px;vertical-align:middle}
-
-/* ── Category icons map ── */
-/* handled via JS emoji map */
-
-/* ── Empty ── */
 .empty{text-align:center;padding:56px 20px;color:var(--text3)}
 .empty-icon{font-size:44px;margin-bottom:12px}
 .empty-title{font-size:15px;font-weight:600;color:var(--text2);margin-bottom:6px}
 .empty-sub{font-size:13px;line-height:1.6}
-
-/* ── Loading ── */
 .loading{display:flex;align-items:center;justify-content:center;padding:48px;color:var(--text3);font-size:13px;gap:10px}
 .spin{width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-/* ── Cards ── */
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px}
 .card-title{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
-
-/* ── Donut chart ── */
 .donut-wrap{display:flex;align-items:center;gap:20px}
 .donut-svg{flex-shrink:0}
 .donut-legend{flex:1;display:flex;flex-direction:column;gap:8px}
@@ -141,43 +94,21 @@ input,select,button{font-family:var(--sans)}
 .legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
 .legend-label{font-size:12px;font-weight:500;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .legend-pct{font-size:12px;color:var(--text3);font-weight:600}
-
-/* ── Bar chart ── */
 .bar-chart{display:flex;align-items:flex-end;gap:5px;height:100px;padding-bottom:28px;position:relative}
 .bar-col{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;height:100px;justify-content:flex-end}
 .bar-inc,.bar-exp{width:calc(50% - 1px);border-radius:3px 3px 0 0;min-height:3px;transition:height .4s}
-.bar-inc{background:rgba(74,222,128,.7)}
-.bar-exp{background:rgba(248,113,113,.7)}
+.bar-inc{background:rgba(74,222,128,.7)}.bar-exp{background:rgba(248,113,113,.7)}
 .bar-pair{display:flex;gap:2px;width:100%;justify-content:center;align-items:flex-end}
 .bar-lbl{font-size:9px;color:var(--text3);position:absolute;bottom:-20px;font-weight:600;white-space:nowrap}
-
-/* ── Net line ── */
-.net-line-wrap{margin-top:8px}
-.net-line-svg{width:100%;height:60px}
-
-/* ── Buckets ── */
-.bucket-list{display:flex;flex-direction:column;gap:0}
-.bucket-item{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid var(--border)}
-.bucket-item:last-child{border-bottom:none}
-.bkt-color{width:4px;height:36px;border-radius:2px;margin-right:12px;flex-shrink:0}
-.bkt-info{flex:1}
-.bkt-name{font-size:14px;font-weight:600}
-.bkt-pct{font-size:12px;color:var(--text3);margin-top:1px}
-.bkt-amt{font-size:15px;font-weight:700;color:var(--acc2);margin-right:10px}
-.bkt-edit-btn{background:transparent;border:1px solid var(--border2);border-radius:var(--rs);padding:5px 10px;color:var(--text3);font-size:11px;font-weight:600;cursor:pointer}
-
-/* ── Form ── */
 .form-section{margin-bottom:18px}
 .form-section-title{font-size:10px;font-weight:700;color:var(--acc);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--border)}
 .field{margin-bottom:10px}
 .field label{display:block;font-size:11px;color:var(--text3);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
-.field input,.field select,.field textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);color:var(--text);font-family:var(--sans);font-size:14px;padding:11px 13px;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+.field input,.field select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);color:var(--text);font-family:var(--sans);font-size:14px;padding:11px 13px;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
 .field input:focus,.field select:focus{border-color:var(--acc)}
 .field select option{background:var(--bg3)}
 .frow2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-
-/* ── Toggle switch ── */
 .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
 .toggle-row:last-child{border-bottom:none}
 .toggle-label{font-size:14px;font-weight:500}
@@ -188,56 +119,42 @@ input,select,button{font-family:var(--sans)}
 .slider-sw:before{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;background:white;border-radius:50%;transition:transform .2s}
 input:checked+.slider-sw{background:var(--acc)}
 input:checked+.slider-sw:before{transform:translateX(20px)}
-
-/* ── Type toggle ── */
 .type-toggle{display:flex;background:var(--bg3);border-radius:var(--rs);padding:3px;margin-bottom:16px;gap:3px}
-.type-btn{flex:1;padding:8px;border:none;border-radius:7px;background:transparent;color:var(--text3);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.type-btn{flex:1;padding:7px 4px;border:none;border-radius:7px;background:transparent;color:var(--text3);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
 .type-btn.active.income{background:rgba(74,222,128,.15);color:var(--green)}
 .type-btn.active.expense{background:rgba(248,113,113,.15);color:var(--red)}
-.type-btn.active.payslip{background:rgba(129,140,248,.15);color:var(--acc2)} 
-.type-btn.active.savings{background:rgba(74,222,128,.15);color:var(--green)}
-
-/* ── Category grid ── */
+.type-btn.active.payslip{background:rgba(129,140,248,.15);color:var(--acc2)}
+.type-btn.active.savings{background:rgba(165,180,252,.15);color:var(--acc2)}
 .cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
 .cat-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border:1.5px solid var(--border2);border-radius:var(--rs);cursor:pointer;transition:all .2s;background:var(--bg3)}
 .cat-item.selected{border-color:var(--acc);background:rgba(129,140,248,.1)}
 .cat-item .ci-icon{font-size:20px}
 .cat-item .ci-label{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.03em;text-align:center}
 .cat-item.selected .ci-label{color:var(--acc2)}
-
-/* ── Amount input big ── */
 .amt-input-wrap{background:var(--bg3);border:1.5px solid var(--border2);border-radius:var(--r);padding:14px 16px;margin-bottom:14px;transition:border-color .2s}
 .amt-input-wrap:focus-within{border-color:var(--acc)}
 .amt-currency{font-size:13px;color:var(--text3);font-weight:600;margin-bottom:2px}
 .amt-input{width:100%;background:transparent;border:none;color:var(--text);font-size:32px;font-weight:700;outline:none;padding:0;letter-spacing:-.02em}
 .amt-input::placeholder{color:var(--text3)}
-
-/* ── NET preview box ── */
 .net-box{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:14px;margin-bottom:14px}
 .net-box-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:4px}
 .net-box-val{font-size:28px;font-weight:700;letter-spacing:-.02em}
 .net-box-parts{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap}
 .net-box-part{font-size:11px;color:var(--text2)}
 .net-box-part span{color:var(--text3)}
-
-/* ── Payslip split preview ── */
 .split-preview{margin-top:12px}
 .split-item{display:flex;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)}
 .split-item:last-child{border-bottom:none}
 .split-dot{width:8px;height:8px;border-radius:50%;margin-right:10px;flex-shrink:0}
-.split-name{font-size:12px;font-weight:700;flex:1;font-family:'Space Grotesk',sans-serif}
+.split-name{font-size:12px;font-weight:700;flex:1}
 .split-desc{font-size:11px;color:var(--text3);flex:1.5}
 .split-amt{font-size:13px;font-weight:600}
-
-/* ── Buttons ── */
 .btn{display:block;width:100%;padding:14px;border-radius:var(--rs);border:none;cursor:pointer;font-family:var(--sans);font-size:14px;font-weight:700;transition:all .15s}
 .btn-p{background:var(--acc);color:white}
 .btn-p:active{background:var(--acc2);transform:scale(.98)}
 .btn-g{background:transparent;color:var(--text3);border:1px solid var(--border2);margin-top:8px}
 .btn-d{background:rgba(248,113,113,.1);color:var(--red);border:1px solid rgba(248,113,113,.2);margin-top:8px}
 .btn-sm{padding:8px 16px;font-size:13px;border-radius:var(--rs);border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;font-weight:600}
-
-/* ── Modal ── */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:50;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s}
 .overlay.open{opacity:1;pointer-events:all}
 .modal{background:var(--bg2);border-top:1px solid var(--border2);border-radius:24px 24px 0 0;padding:0 0 36px;width:100%;max-height:92dvh;overflow-y:auto;transform:translateY(24px);transition:transform .28s cubic-bezier(.4,0,.2,1)}
@@ -245,15 +162,11 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
 .modal-handle{width:40px;height:4px;background:var(--bg5);border-radius:2px;margin:12px auto 16px}
 .modal-title{font-size:16px;font-weight:700;color:var(--text);padding:0 16px 14px;border-bottom:1px solid var(--border)}
 .modal-body{padding:16px}
-
-/* ── Settings rows ── */
 .srow{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
 .srow:last-child{border-bottom:none}
 .srow-label{font-size:14px;font-weight:500}
 .srow-sub{font-size:11px;color:var(--text3);margin-top:2px}
 .sinput{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);color:var(--text);font-family:var(--sans);font-size:14px;padding:7px 11px;outline:none;text-align:right;width:90px}
-
-/* ── Bucket editor ── */
 .bkt-editor-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)}
 .bkt-editor-row:last-child{border-bottom:none}
 .bkt-color-pick{width:28px;height:28px;border-radius:8px;border:none;cursor:pointer;padding:0;flex-shrink:0}
@@ -262,42 +175,26 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
 .bkt-del-btn{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:4px 6px;flex-shrink:0}
 .bkt-add-btn{display:flex;align-items:center;gap:6px;background:transparent;border:1.5px dashed var(--border2);border-radius:var(--rs);color:var(--text3);font-size:13px;font-weight:600;padding:10px 14px;cursor:pointer;width:100%;justify-content:center;margin-top:10px}
 .pct-total{font-size:12px;margin-top:8px;font-weight:600;text-align:right}
-
-/* ── Toast ── */
 .toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);padding:10px 20px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;z-index:100;white-space:nowrap;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.4)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* ── Scrollable tabs ── */
-.stabs{display:flex;gap:6px;overflow-x:auto;padding:12px 16px 0;border-bottom:1px solid var(--border);max-width:480px;margin:0 auto}
-.stabs::-webkit-scrollbar{display:none}
-.stab{padding:7px 16px;border-radius:99px 99px 0 0;font-size:12px;font-weight:600;border:1px solid transparent;border-bottom:none;cursor:pointer;color:var(--text3);background:transparent;white-space:nowrap;transition:all .2s}
-.stab.active{color:var(--acc2);border-color:var(--border2);background:var(--bg2)}
-
-/* ── Graph tab ── */
 .graph-period-row{display:flex;gap:6px;padding:12px 16px;overflow-x:auto}
 .graph-period-row::-webkit-scrollbar{display:none}
 .gp-btn{padding:5px 14px;border-radius:99px;font-size:12px;font-weight:600;border:1px solid var(--border2);color:var(--text3);background:transparent;cursor:pointer;white-space:nowrap;flex-shrink:0}
 .gp-btn.active{background:rgba(129,140,248,.15);color:var(--acc2);border-color:var(--acc)}
-
-/* ── Misc ── */
 .gap{height:16px}.gap-sm{height:10px}
-.divider{height:1px;background:var(--border);margin:12px 0}
 </style>
 </head>
 <body>
 <div id="app">
 
-<!-- ══ HOME / TRANSACTIONS VIEW ══ -->
+<!-- HOME -->
 <div id="view-home" class="view active">
   <div class="topbar">
     <div class="topbar-inner">
       <div><div class="logo">Spend<em>Sense</em></div><span class="logo-sub">by baekwun</span></div>
-      <div class="topbar-right">
-        <span class="pill" id="sync-pill">—</span>
-      </div>
+      <div class="topbar-right"><span class="pill" id="sync-pill">—</span></div>
     </div>
   </div>
-  <!-- Summary banner -->
   <div class="summary-banner">
     <div class="sb-inner">
       <div class="sb-month" id="sb-month">— 2024</div>
@@ -308,25 +205,24 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
       </div>
     </div>
   </div>
-  <!-- Month nav -->
   <div class="month-sel">
     <div class="month-sel-inner">
       <button class="msel-btn" onclick="changeMonth(-1)"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
-      <span class="msel-label" id="msel-label">November 2024</span>
+      <span class="msel-label" id="msel-label">June 2026</span>
       <button class="msel-btn" onclick="changeMonth(1)"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
     </div>
   </div>
   <div id="tx-list"><div class="loading"><div class="spin"></div>Loading...</div></div>
 </div>
 
-<!-- ══ ANALYTICS / GRAPHS VIEW ══ -->
+<!-- GRAPHS -->
 <div id="view-graph" class="view">
   <div class="topbar">
     <div class="topbar-inner">
       <div><div class="logo">Spend<em>Sense</em></div><span class="logo-sub">analytics</span></div>
     </div>
   </div>
-  <div class="graph-period-row" id="graph-period-row">
+  <div class="graph-period-row">
     <button class="gp-btn active" onclick="setGraphPeriod('this',this)">This Month</button>
     <button class="gp-btn" onclick="setGraphPeriod('last',this)">Last Month</button>
     <button class="gp-btn" onclick="setGraphPeriod('3m',this)">3 Months</button>
@@ -334,7 +230,6 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
   </div>
   <div class="inner">
     <div class="gap"></div>
-    <!-- Income vs Expense bar -->
     <div class="card">
       <div class="card-title">Income vs Expense</div>
       <div class="bar-chart" id="graph-bar"><div style="color:var(--text3);font-size:12px">No data yet</div></div>
@@ -343,35 +238,29 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
         <span style="font-size:12px;color:var(--text3)"><span style="color:var(--red);font-weight:700">■</span> Expense</span>
       </div>
     </div>
-    <!-- Expense donut -->
-    <div class="card">
-      <div class="card-title">Expense breakdown</div>
-      <div class="donut-wrap" id="expense-donut">
-        <div style="color:var(--text3);font-size:12px">No expense data</div>
-      </div>
-    </div>
-    <!-- Income donut -->
-    <div class="card">
-      <div class="card-title">Income sources</div>
-      <div class="donut-wrap" id="income-donut">
-        <div style="color:var(--text3);font-size:12px">No income data</div>
-      </div>
-    </div>
-    <!-- Net flow -->
-    <div class="card">
-      <div class="card-title">Net flow by month</div>
-      <div id="net-flow-chart" style="min-height:70px"><div style="color:var(--text3);font-size:12px">No data yet</div></div>
-    </div>
-    <!-- Savings buckets -->
-    <div class="card" id="graph-buckets-card">
-      <div class="card-title">Savings split — last income</div>
-      <div id="graph-buckets"><div style="color:var(--text3);font-size:12px">Add an income entry first</div></div>
-    </div>
+    <div class="card"><div class="card-title">Expense breakdown</div><div class="donut-wrap" id="expense-donut"><div style="color:var(--text3);font-size:12px">No data</div></div></div>
+    <div class="card"><div class="card-title">Income sources</div><div class="donut-wrap" id="income-donut"><div style="color:var(--text3);font-size:12px">No data</div></div></div>
+    <div class="card"><div class="card-title">Net flow by month</div><div id="net-flow-chart" style="min-height:70px"><div style="color:var(--text3);font-size:12px">No data yet</div></div></div>
+    <div class="card"><div class="card-title">Savings split — last income</div><div id="graph-buckets"><div style="color:var(--text3);font-size:12px">Add an income entry first</div></div></div>
     <div class="gap"></div>
   </div>
 </div>
 
-<!-- ══ SETTINGS VIEW ══ -->
+<!-- SAVINGS -->
+<div id="view-savings" class="view">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div><div class="logo">Spend<em>Sense</em></div><span class="logo-sub">savings</span></div>
+    </div>
+  </div>
+  <div class="inner">
+    <div class="gap"></div>
+    <div id="savings-view-content"><div class="loading"><div class="spin"></div>Loading...</div></div>
+    <div class="gap"></div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
 <div id="view-settings" class="view">
   <div class="topbar">
     <div class="topbar-inner">
@@ -380,21 +269,15 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
   </div>
   <div class="inner">
     <div class="gap"></div>
-    <!-- API -->
     <div class="card">
       <div class="card-title">Sync — Google Apps Script</div>
-      <div class="field">
-        <label>GAS Web App URL</label>
-        <input type="text" id="s-api" placeholder="https://script.google.com/macros/s/.../exec" style="font-size:11px">
-      </div>
+      <div class="field"><label>GAS Web App URL</label><input type="text" id="s-api" placeholder="https://script.google.com/macros/s/.../exec" style="font-size:11px"></div>
     </div>
-    <!-- WAR CHEST -->
     <div class="card">
       <div class="card-title">WAR CHEST — ₱100k Goal</div>
       <div class="srow"><div><div class="srow-label">Goal amount</div></div><input class="sinput" type="number" id="s-wc-goal" value="100000"></div>
-      <div class="srow"><div><div class="srow-label">Amount saved so far</div><div class="srow-sub">Update manually after transferring to savings</div></div><input class="sinput" type="number" id="s-wc-saved" value="0"></div>
+      <div class="srow"><div><div class="srow-label">Amount saved so far</div><div class="srow-sub">Update manually after transferring</div></div><input class="sinput" type="number" id="s-wc-saved" value="0"></div>
     </div>
-    <!-- Buckets -->
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
         <div class="card-title" style="margin-bottom:0">Savings Buckets</div>
@@ -405,24 +288,7 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
     </div>
     <button class="btn btn-p" onclick="saveAllSettings()">Save Settings</button>
     <div class="gap"></div>
-    <div style="text-align:center;font-size:11px;color:var(--text3);line-height:1.9">
-      SpendSense v2.0 · offline-first PWA<br>
-      built by baekwun
-    </div>
-    <div class="gap"></div>
-  </div>
-</div>
-
-<!-- ══ SAVINGS VIEW ══ -->
-<div id="view-savings" class="view">
-  <div class="topbar">
-    <div class="topbar-inner">
-      <div><div class="logo">Spend<em>Sense</em></div><span class="logo-sub">savings</span></div>
-    </div>
-  </div>
-  <div class="inner">
-    <div class="gap"></div>
-    <div id="savings-view-content"><div class="loading"><div class="spin"></div>Loading...</div></div>
+    <div style="text-align:center;font-size:11px;color:var(--text3);line-height:1.9">SpendSense v2.1 · offline-first PWA<br>built by baekwun</div>
     <div class="gap"></div>
   </div>
 </div>
@@ -449,39 +315,32 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
   <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
 </button>
 
-<!-- ══ ADD TRANSACTION MODAL ══ -->
+<!-- ADD TX MODAL -->
 <div class="overlay" id="modal-tx">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">New Entry</div>
     <div class="modal-body">
-      <!-- Type selector -->
       <div class="type-toggle">
         <button class="type-btn active expense" id="type-expense" onclick="setType('expense')">− Expense</button>
         <button class="type-btn income" id="type-income" onclick="setType('income')">+ Income</button>
-        <button class="type-btn payslip" id="type-payslip" onclick="setType('payslip')">📄 Payslip</button>         
+        <button class="type-btn payslip" id="type-payslip" onclick="setType('payslip')">📄 Payslip</button>
         <button class="type-btn savings" id="type-savings" onclick="setType('savings')">🪣 Savings</button>
       </div>
-
-      <!-- Amount -->
       <div class="amt-input-wrap">
         <div class="amt-currency">Philippine Peso (₱)</div>
         <input class="amt-input" type="number" id="tx-amount" placeholder="0.00" oninput="onAmountInput()">
       </div>
-
-      <!-- Date -->
       <div class="frow2" style="margin-bottom:10px">
         <div class="field"><label>Date</label><input type="date" id="tx-date"></div>
         <div class="field"><label>Description</label><input type="text" id="tx-desc" placeholder="what for?"></div>
       </div>
-
-      <!-- Category grid (expense/income) -->
+      <!-- Category grid -->
       <div id="cat-section">
         <div style="font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Category</div>
         <div class="cat-grid" id="cat-grid"></div>
       </div>
-
-      <!-- Payslip section (hidden by default) -->
+      <!-- Payslip section -->
       <div id="payslip-section" style="display:none">
         <div class="form-section">
           <div class="form-section-title">Payslip Header</div>
@@ -522,7 +381,7 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
           <div class="form-section-title">ADJ</div>
           <div class="field"><label>SLRY/HLDY</label><input type="number" id="ps-slry" placeholder="0" oninput="calcPayslipNet()"></div>
         </div>
-        <div class="net-box" id="net-box">
+        <div class="net-box">
           <div class="net-box-label">Computed NET (incl. ₱25 Bayanihan)</div>
           <div class="net-box-val" id="net-box-val" style="color:var(--text3)">₱—</div>
           <div class="net-box-parts">
@@ -532,40 +391,35 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
           </div>
         </div>
       </div>
-
       <!-- Savings bucket selector -->
       <div id="savings-section" style="display:none">
         <div style="font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Select bucket</div>
         <div id="savings-bucket-grid" class="cat-grid"></div>
-        <div class="field" style="margin-top:10px"><label>Label / memo</label><input type="text" id="sv-memo" placeholder="e.g. transfer from payslip..."></div>
+        <div class="field" style="margin-top:10px"><label>Memo (optional)</label><input type="text" id="sv-memo" placeholder="e.g. transfer from payslip..."></div>
       </div>
-
-      <!-- Apply split toggle (income + payslip) -->
-      <div id="split-toggle-row" style="display:none" class="card" style="margin-bottom:14px">
+      <!-- Split toggle -->
+      <div id="split-toggle-row" style="display:none;background:var(--bg3);border-radius:var(--rs);padding:12px;margin-bottom:14px">
         <div class="toggle-row" style="padding:0;border:none">
           <div>
             <div class="toggle-label">Apply savings split?</div>
-            <div class="toggle-sub" id="split-toggle-sub">Show how to distribute this income to your buckets</div>
+            <div class="toggle-sub" id="split-toggle-sub">Show how to distribute this across buckets</div>
           </div>
           <label class="switch"><input type="checkbox" id="tx-apply-split" checked onchange="onSplitToggle()"><span class="slider-sw"></span></label>
         </div>
       </div>
-
       <!-- Split preview -->
-      <div id="split-preview-wrap" style="display:none" class="card" style="margin-bottom:14px">
-        <div class="card-title">Savings split</div>
+      <div id="split-preview-wrap" style="display:none;background:var(--bg3);border-radius:var(--rs);padding:12px;margin-bottom:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px" id="split-preview-title">Savings split</div>
         <div class="split-preview" id="split-preview-inner"></div>
       </div>
-
       <div class="field"><label>Notes (optional)</label><input type="text" id="tx-notes" placeholder="any notes..."></div>
-
       <button class="btn btn-p" id="tx-submit-btn" onclick="submitTx()">Save Entry</button>
       <button class="btn btn-g" onclick="closeModal('modal-tx')">Cancel</button>
     </div>
   </div>
 </div>
 
-<!-- ══ BUCKET EDITOR MODAL ══ -->
+<!-- BUCKET EDITOR MODAL -->
 <div class="overlay" id="modal-buckets">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -582,7 +436,7 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
   </div>
 </div>
 
-<!-- ══ TX DETAIL MODAL ══ -->
+<!-- TX DETAIL MODAL -->
 <div class="overlay" id="modal-tx-detail">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -594,825 +448,685 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
 <div class="toast" id="toast"></div>
 
 <script>
-// ════════════════════════════════════════════════════════════
-// CONSTANTS & STATE
-// ════════════════════════════════════════════════════════════
-const DB_NAME = 'spendsense_db';
-const DB_VER  = 1;
-const MONTHS  = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
-const CAT_MAP = {
-  // Expense
-  food:       { emoji:'🍱', label:'Food',       color:'#f97316' },
-  breakfast:  { emoji:'☕', label:'Breakfast',  color:'#fbbf24' },
-  snack:      { emoji:'🍪', label:'Snack',      color:'#fb923c' },
-  gas:        { emoji:'⛽', label:'Gas',        color:'#818cf8' },
-  transport:  { emoji:'🛵', label:'Transport',  color:'#a78bfa' },
-  bills:      { emoji:'📱', label:'Bills',      color:'#60a5fa' },
-  shopping:   { emoji:'🛒', label:'Shopping',   color:'#f472b6' },
-  health:     { emoji:'💊', label:'Health',     color:'#4ade80' },
-  cc_payment: { emoji:'💳', label:'CC Pay',     color:'#f87171' },
-  other:      { emoji:'📌', label:'Other',      color:'#94a3b8' },
-  // Income
-  salary:     { emoji:'💼', label:'Salary',     color:'#4ade80' },
-  incentive:  { emoji:'🎯', label:'Incentive',  color:'#34d399' },
-  extra:      { emoji:'💸', label:'Extra',      color:'#a3e635' },
-  allotment:  { emoji:'🔄', label:'Allotment',  color:'#94a3b8' },
-  freelance:  { emoji:'🖥️', label:'Freelance',  color:'#60a5fa' },
-  gift:       { emoji:'🎁', label:'Gift',       color:'#f472b6' },
+// ═══ CONSTANTS & STATE ═══════════════════════════════════════
+const DB_NAME='spendsense_db', DB_VER=1;
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTHS_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const CAT_MAP={
+  food:{emoji:'🍱',label:'Food',color:'#f97316'},
+  breakfast:{emoji:'☕',label:'Breakfast',color:'#fbbf24'},
+  snack:{emoji:'🍪',label:'Snack',color:'#fb923c'},
+  gas:{emoji:'⛽',label:'Gas',color:'#818cf8'},
+  transport:{emoji:'🛵',label:'Transport',color:'#a78bfa'},
+  bills:{emoji:'📱',label:'Bills',color:'#60a5fa'},
+  shopping:{emoji:'🛒',label:'Shopping',color:'#f472b6'},
+  health:{emoji:'💊',label:'Health',color:'#4ade80'},
+  cc_payment:{emoji:'💳',label:'CC Pay',color:'#f87171'},
+  other:{emoji:'📌',label:'Other',color:'#94a3b8'},
+  salary:{emoji:'💼',label:'Salary',color:'#4ade80'},
+  incentive:{emoji:'🎯',label:'Incentive',color:'#34d399'},
+  extra:{emoji:'💸',label:'Extra',color:'#a3e635'},
+  allotment:{emoji:'🔄',label:'Allotment',color:'#94a3b8'},
+  freelance:{emoji:'🖥️',label:'Freelance',color:'#60a5fa'},
+  gift:{emoji:'🎁',label:'Gift',color:'#f472b6'},
+  savings:{emoji:'🪣',label:'Savings',color:'#a5b4fc'},
 };
-
-const EXP_CATS = ['food','breakfast','snack','gas','transport','bills','shopping','health','cc_payment','other'];
-const INC_CATS = ['salary','incentive','extra','allotment','freelance','gift'];
-
-let db, isOnline = navigator.onLine;
-let allTx = [];
-let currentMonth = new Date();
-let currentType = 'expense';
-let selectedCat = 'food';
-let graphPeriod = 'this';
-let selectedSavingsBucket = null;
-let buckets = [
-  { id:'bk1', name:'WAR CHEST',   percent:20, color:'#818cf8' },
-  { id:'bk2', name:'BIKE TAX',    percent:8,  color:'#f87171' },
-  { id:'bk3', name:'UPGRADE KIT', percent:5,  color:'#fbbf24' },
-  { id:'bk4', name:'DUE DATES',   percent:7,  color:'#4ade80' },
-  { id:'bk5', name:'DAILY OPS',   percent:60, color:'#60a5fa' },
+const EXP_CATS=['food','breakfast','snack','gas','transport','bills','shopping','health','cc_payment','other'];
+const INC_CATS=['salary','incentive','extra','allotment','freelance','gift'];
+let db, isOnline=navigator.onLine, allTx=[];
+let currentMonth=new Date(), currentType='expense', selectedCat='food';
+let graphPeriod='this', selectedSavingsBucket=null;
+let buckets=[
+  {id:'bk1',name:'WAR CHEST',percent:20,color:'#818cf8'},
+  {id:'bk2',name:'BIKE TAX',percent:8,color:'#f87171'},
+  {id:'bk3',name:'UPGRADE KIT',percent:5,color:'#fbbf24'},
+  {id:'bk4',name:'DUE DATES',percent:7,color:'#4ade80'},
+  {id:'bk5',name:'DAILY OPS',percent:60,color:'#60a5fa'},
 ];
 
-// ════════════════════════════════════════════════════════════
-// INDEXEDDB
-// ════════════════════════════════════════════════════════════
-function initDB() {
-  return new Promise((res,rej) => {
-    const req = indexedDB.open(DB_NAME, DB_VER);
-    req.onupgradeneeded = e => {
-      const d = e.target.result;
-      if (!d.objectStoreNames.contains('transactions')) {
-        const s = d.createObjectStore('transactions', { keyPath:'id' });
-        s.createIndex('date','date'); s.createIndex('type','type');
+// ═══ INDEXEDDB ════════════════════════════════════════════════
+function initDB(){
+  return new Promise((res,rej)=>{
+    const req=indexedDB.open(DB_NAME,DB_VER);
+    req.onupgradeneeded=e=>{
+      const d=e.target.result;
+      if(!d.objectStoreNames.contains('transactions')){
+        const s=d.createObjectStore('transactions',{keyPath:'id'});
+        s.createIndex('date','date');s.createIndex('type','type');
       }
-      if (!d.objectStoreNames.contains('settings'))
-        d.createObjectStore('settings', { keyPath:'key' });
-      if (!d.objectStoreNames.contains('buckets'))
-        d.createObjectStore('buckets', { keyPath:'id' });
+      if(!d.objectStoreNames.contains('settings'))d.createObjectStore('settings',{keyPath:'key'});
+      if(!d.objectStoreNames.contains('buckets'))d.createObjectStore('buckets',{keyPath:'id'});
     };
-    req.onsuccess = e => { db = e.target.result; res(db); };
-    req.onerror = () => rej(req.error);
+    req.onsuccess=e=>{db=e.target.result;res(db);};
+    req.onerror=()=>rej(req.error);
   });
 }
-const dbGet = (store,key) => new Promise((r,e) => { const t=db.transaction(store,'readonly').objectStore(store).get(key); t.onsuccess=()=>r(t.result); t.onerror=()=>e(t.error); });
-const dbPut = (store,obj) => new Promise((r,e) => { const t=db.transaction(store,'readwrite').objectStore(store).put(obj); t.onsuccess=()=>r(t.result); t.onerror=()=>e(t.error); });
-const dbDel = (store,key) => new Promise((r,e) => { const t=db.transaction(store,'readwrite').objectStore(store).delete(key); t.onsuccess=()=>r(); t.onerror=()=>e(t.error); });
-const dbAll = (store) => new Promise((r,e) => { const t=db.transaction(store,'readonly').objectStore(store).getAll(); t.onsuccess=()=>r(t.result); t.onerror=()=>e(t.error); });
+const dbGet=(store,key)=>new Promise((r,e)=>{const t=db.transaction(store,'readonly').objectStore(store).get(key);t.onsuccess=()=>r(t.result);t.onerror=()=>e(t.error);});
+const dbPut=(store,obj)=>new Promise((r,e)=>{const t=db.transaction(store,'readwrite').objectStore(store).put(obj);t.onsuccess=()=>r(t.result);t.onerror=()=>e(t.error);});
+const dbDel=(store,key)=>new Promise((r,e)=>{const t=db.transaction(store,'readwrite').objectStore(store).delete(key);t.onsuccess=()=>r();t.onerror=()=>e(t.error);});
+const dbAll=(store)=>new Promise((r,e)=>{const t=db.transaction(store,'readonly').objectStore(store).getAll();t.onsuccess=()=>r(t.result);t.onerror=()=>e(t.error);});
 
-// ════════════════════════════════════════════════════════════
-// SETTINGS & BUCKETS
-// ════════════════════════════════════════════════════════════
-async function loadBuckets() {
-  const stored = await dbAll('buckets');
-  if (stored.length) buckets = stored;
-}
-async function saveBucketsLocal() {
-  for (const b of buckets) await dbPut('buckets', b);
-}
-async function getSetting(key, def='') {
-  const r = await dbGet('settings', key);
-  return r ? r.value : def;
-}
-async function setSetting(key, value) {
-  await dbPut('settings', { key, value });
-}
+// ═══ SETTINGS & BUCKETS ══════════════════════════════════════
+async function loadBuckets(){const s=await dbAll('buckets');if(s.length)buckets=s;}
+async function saveBucketsLocal(){for(const b of buckets)await dbPut('buckets',b);}
+async function getSetting(key,def=''){const r=await dbGet('settings',key);return r?r.value:def;}
+async function setSetting(key,value){await dbPut('settings',{key,value});}
 
-// ════════════════════════════════════════════════════════════
-// GAS API
-// ════════════════════════════════════════════════════════════
-async function gasPost(body) {
-  const url = await getSetting('gas_api_url','');
-  if (!url) throw new Error('No API URL configured');
-  const r = await fetch(url, { method:'POST', body: JSON.stringify(body) });
+// ═══ GAS API ══════════════════════════════════════════════════
+async function gasPost(body){
+  const url=await getSetting('gas_api_url','');
+  if(!url)throw new Error('No API URL');
+  const r=await fetch(url,{method:'POST',body:JSON.stringify(body)});
   return r.json();
 }
-async function gasGet(params) {
-  const url = await getSetting('gas_api_url','');
-  if (!url) throw new Error('No API URL');
-  const r = await fetch(url+'?'+new URLSearchParams(params));
+async function gasGet(params){
+  const url=await getSetting('gas_api_url','');
+  if(!url)throw new Error('No API URL');
+  const r=await fetch(url+'?'+new URLSearchParams(params));
   return r.json();
 }
 
-// ════════════════════════════════════════════════════════════
-// SYNC
-// ════════════════════════════════════════════════════════════
-async function syncPending() {
-  if (!isOnline) return;
-  const url = await getSetting('gas_api_url','');
-  if (!url) return;
-  try {
-    const txs = await dbAll('transactions');
-    const pending = txs.filter(t => !t.synced);
-    if (!pending.length) return;
+// ═══ SYNC ══════════════════════════════════════════════════════
+async function syncPending(){
+  if(!isOnline)return;
+  const url=await getSetting('gas_api_url','');
+  if(!url)return;
+  try{
+    const txs=await dbAll('transactions');
+    const pending=txs.filter(t=>!t.synced);
+    if(!pending.length)return;
     setSyncPill('syncing');
-    const res = await gasPost({ action:'syncBatch', transactions: pending });
-    if (res.ok) {
-      for (const t of pending) await dbPut('transactions', {...t, synced:true});
-      if (res.synced > 0) toast(`Synced ${res.synced} record(s) ✓`);
+    const res=await gasPost({action:'syncBatch',transactions:pending});
+    if(res.ok){
+      for(const t of pending)await dbPut('transactions',{...t,synced:true});
+      if(res.synced>0)toast(`Synced ${res.synced} record(s) ✓`);
     }
     setSyncPill('online');
-  } catch(e) { setSyncPill(isOnline?'online':'offline'); }
+  }catch(e){setSyncPill(isOnline?'online':'offline');}
 }
 
-// ════════════════════════════════════════════════════════════
-// HELPERS
-// ════════════════════════════════════════════════════════════
-function php(n,decimals=2) { return '₱'+parseFloat(n||0).toLocaleString('en-PH',{minimumFractionDigits:decimals,maximumFractionDigits:decimals}); }
-function phpK(n) { return '₱'+Math.round(n||0).toLocaleString(); }
-function fmtDate(d) {
-  if (!d) return '—';
-  try { return new Date(d+'T00:00:00').toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'}); }
-  catch(e) { return d; }
+async function pullFromSheets(){
+  const url=await getSetting('gas_api_url','');
+  if(!url||!isOnline)return;
+  try{
+    setSyncPill('syncing');
+    const res=await gasGet({action:'getTransactions'});
+    if(!Array.isArray(res)){setSyncPill('online');return;}
+    const existing=await dbAll('transactions');
+    const existingIds=new Set(existing.map(t=>t.id));
+    let pulled=0;
+    for(const row of res){
+      const id=row['ID']||row['id'];
+      if(!id||existingIds.has(id))continue;
+      let payslipData=null;
+      const raw=row['PayslipData']||row['payslipData'];
+      if(raw){try{payslipData=typeof raw==='string'?JSON.parse(raw):raw;}catch(e){}}
+      let savingsBucketSnapshot=null;
+      const rawSnap=row['SavingsBucketSnapshot']||row['savingsBucketSnapshot'];
+      if(rawSnap){try{savingsBucketSnapshot=typeof rawSnap==='string'?JSON.parse(rawSnap):rawSnap;}catch(e){}}
+      const tx={
+        id,
+        date:row['Date']||row['date']||'',
+        type:row['Type']||row['type']||'expense',
+        category:row['Category']||row['category']||'other',
+        description:row['Description']||row['description']||'',
+        amount:parseFloat(row['Amount']||row['amount'])||0,
+        applySplit:(row['ApplySplit']||row['applySplit'])==='TRUE'||(row['ApplySplit']||row['applySplit'])===true,
+        payslipData,savingsBucketSnapshot,
+        notes:row['Notes']||row['notes']||'',
+        synced:true,
+        createdAt:row['CreatedAt']||row['createdAt']||Date.now()
+      };
+      await dbPut('transactions',tx);pulled++;
+    }
+    const bktRes=await gasGet({action:'getBuckets'});
+    if(Array.isArray(bktRes)&&bktRes.length){
+      buckets=bktRes.map(b=>({id:b['ID']||b['id']||genId('bk'),name:b['Name']||b['name']||'Bucket',percent:parseFloat(b['Percent']||b['percent'])||0,color:b['Color']||b['color']||'#818cf8'}));
+      await saveBucketsLocal();
+    }
+    const sRes=await gasGet({action:'getSettings'});
+    if(sRes&&typeof sRes==='object'){
+      if(sRes.war_chest_goal)await setSetting('wc_goal',sRes.war_chest_goal);
+      if(sRes.war_chest_saved)await setSetting('wc_saved',sRes.war_chest_saved);
+    }
+    setSyncPill('online');
+    if(pulled>0){toast(`Pulled ${pulled} record(s) from Sheets ✓`);renderTxList();}
+  }catch(e){setSyncPill(isOnline?'online':'offline');}
 }
-function monthKey(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
-function monthLabel(d) { return `${MONTHS[d.getMonth()]} ${d.getFullYear()}`; }
-function genId(prefix) { return prefix+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,6); }
-function catInfo(cat) { return CAT_MAP[cat] || { emoji:'📌', label: cat, color:'#94a3b8' }; }
 
-function setSyncPill(state) {
-  const el = document.getElementById('sync-pill');
-  el.className = 'pill '+state;
-  el.textContent = state==='online'?'online':state==='offline'?'offline':'syncing…';
-}
+// ═══ HELPERS ══════════════════════════════════════════════════
+function php(n,d=2){return '₱'+parseFloat(n||0).toLocaleString('en-PH',{minimumFractionDigits:d,maximumFractionDigits:d});}
+function phpK(n){return '₱'+Math.round(n||0).toLocaleString();}
+function fmtDate(d){if(!d)return '—';try{return new Date(d+'T00:00:00').toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});}catch(e){return d;}}
+function monthKey(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;}
+function monthLabel(d){return `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;}
+function genId(p){return p+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,6);}
+function catInfo(cat){return CAT_MAP[cat]||{emoji:'📌',label:cat,color:'#94a3b8'};}
+function setSyncPill(s){const el=document.getElementById('sync-pill');el.className='pill '+s;el.textContent=s==='online'?'online':s==='offline'?'offline':'syncing…';}
+function toast(msg,dur=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
 
-function toast(msg, dur=2500) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), dur);
-}
-
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-// ════════════════════════════════════════════════════════════
-// NAVIGATION
-// ════════════════════════════════════════════════════════════
-function goTo(view, btn) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.nbtn').forEach(b => b.classList.remove('active'));
+// ═══ NAVIGATION ═══════════════════════════════════════════════
+function goTo(view,btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
   document.getElementById('view-'+view).classList.add('active');
   btn.classList.add('active');
-  const fab = document.getElementById('fab');
-  fab.style.display = view === 'home' ? 'flex' : 'none';
-  if (view==='home') renderTxList();
-  if (view==='graph') renderGraphs();
-  if (view==='settings') loadSettingsView();
-  if (view==='savings') renderSavingsView();
+  document.getElementById('fab').style.display=view==='home'?'flex':'none';
+  if(view==='home')renderTxList();
+  if(view==='graph')renderGraphs();
+  if(view==='savings')renderSavingsView();
+  if(view==='settings')loadSettingsView();
 }
 
-// ════════════════════════════════════════════════════════════
-// MONTH NAVIGATION
-// ════════════════════════════════════════════════════════════
-function changeMonth(dir) {
-  currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + dir, 1);
-  document.getElementById('msel-label').textContent = monthLabel(currentMonth);
+function changeMonth(dir){
+  currentMonth=new Date(currentMonth.getFullYear(),currentMonth.getMonth()+dir,1);
   renderTxList();
 }
 
-// ════════════════════════════════════════════════════════════
-// TRANSACTION LIST
-// ════════════════════════════════════════════════════════════
-async function renderTxList() {
-  const mk = monthKey(currentMonth);
-  document.getElementById('msel-label').textContent = monthLabel(currentMonth);
-
-  allTx = (await dbAll('transactions')).sort((a,b) => new Date(b.date) - new Date(a.date));
-  const monthTx = allTx.filter(t => (t.date||'').startsWith(mk));
-
-  // Summary
-  const income  = monthTx.filter(t=>t.type!=='expense').reduce((a,t)=>a+(t.amount||0),0);
-  const expense = monthTx.filter(t=>t.type==='expense').reduce((a,t)=>a+(t.amount||0),0);
-  const bal = income - expense;
-  document.getElementById('sb-month').textContent = monthLabel(currentMonth).toUpperCase();
-  document.getElementById('sb-inc').textContent = phpK(income);
-  document.getElementById('sb-exp').textContent = phpK(expense);
-  document.getElementById('sb-bal').textContent = phpK(bal);
-  document.getElementById('sb-bal').className = 'sb-val '+(bal>=0?'inc':'exp');
-
-  if (!monthTx.length) {
-    document.getElementById('tx-list').innerHTML = `<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">No entries this month</div><div class="empty-sub">Tap + to log your first income or expense.</div></div>`;
+// ═══ TX LIST ══════════════════════════════════════════════════
+async function renderTxList(){
+  const mk=monthKey(currentMonth);
+  document.getElementById('msel-label').textContent=monthLabel(currentMonth);
+  allTx=(await dbAll('transactions')).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const monthTx=allTx.filter(t=>(t.date||'').startsWith(mk));
+  const income=monthTx.filter(t=>t.type!=='expense'&&t.type!=='savings').reduce((a,t)=>a+(t.amount||0),0);
+  const expense=monthTx.filter(t=>t.type==='expense').reduce((a,t)=>a+(t.amount||0),0);
+  const bal=income-expense;
+  document.getElementById('sb-month').textContent=monthLabel(currentMonth).toUpperCase();
+  document.getElementById('sb-inc').textContent=phpK(income);
+  document.getElementById('sb-exp').textContent=phpK(expense);
+  document.getElementById('sb-bal').textContent=phpK(bal);
+  document.getElementById('sb-bal').className='sb-val '+(bal>=0?'inc':'exp');
+  if(!monthTx.length){
+    document.getElementById('tx-list').innerHTML=`<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">No entries this month</div><div class="empty-sub">Tap + to log your first entry.</div></div>`;
     return;
   }
-
-  // Group by date
-  const groups = {};
-  monthTx.forEach(t => {
-    if (!groups[t.date]) groups[t.date] = [];
-    groups[t.date].push(t);
-  });
-
-  let html = '';
-  Object.keys(groups).sort((a,b)=>new Date(b)-new Date(a)).forEach(date => {
-    const txs = groups[date];
-    const dayInc = txs.filter(t=>t.type!=='expense').reduce((a,t)=>a+(t.amount||0),0);
-    const dayExp = txs.filter(t=>t.type==='expense').reduce((a,t)=>a+(t.amount||0),0);
-    const dayNet = dayInc - dayExp;
-    const dateObj = new Date(date+'T00:00:00');
-    const dayLabel = dateObj.toLocaleDateString('en-PH',{weekday:'short',month:'short',day:'numeric'});
-    html += `<div class="tx-day-group">
-      <div class="tx-day-header">
-        <span class="tx-day-label">${dayLabel}</span>
-        <span class="tx-day-net ${dayNet>0?'pos':dayNet<0?'neg':'zero'}">${dayNet>0?'+':''}${phpK(dayNet)}</span>
-      </div>
-      <div class="tx-card">`;
-    txs.forEach(t => {
-      const ci = catInfo(t.category);
-      const isExp = t.type === 'expense';
-      const iconBg = ci.color+'22';
-      html += `<div class="tx-item" onclick="viewTx('${t.id}')">
-        <div class="tx-icon" style="background:${iconBg}">${ci.emoji}</div>
+  const groups={};
+  monthTx.forEach(t=>{if(!groups[t.date])groups[t.date]=[];groups[t.date].push(t);});
+  let html='';
+  Object.keys(groups).sort((a,b)=>new Date(b)-new Date(a)).forEach(date=>{
+    const txs=groups[date];
+    const dayInc=txs.filter(t=>t.type!=='expense'&&t.type!=='savings').reduce((a,t)=>a+(t.amount||0),0);
+    const dayExp=txs.filter(t=>t.type==='expense').reduce((a,t)=>a+(t.amount||0),0);
+    const dayNet=dayInc-dayExp;
+    const dayLabel=new Date(date+'T00:00:00').toLocaleDateString('en-PH',{weekday:'short',month:'short',day:'numeric'});
+    html+=`<div class="tx-day-group"><div class="tx-day-header"><span class="tx-day-label">${dayLabel}</span><span class="tx-day-net ${dayNet>0?'pos':dayNet<0?'neg':'zero'}">${dayNet>0?'+':''}${phpK(dayNet)}</span></div><div class="tx-card">`;
+    txs.forEach(t=>{
+      const ci=t.type==='savings'&&t.savingsBucketSnapshot?{emoji:'🪣',label:t.savingsBucketSnapshot.name,color:t.savingsBucketSnapshot.color}:catInfo(t.category);
+      const isExp=t.type==='expense';
+      const isSav=t.type==='savings';
+      const amtClass=isSav?'sav':isExp?'exp':'inc';
+      const prefix=isSav?'→':isExp?'−':'+';
+      html+=`<div class="tx-item" onclick="viewTx('${t.id}')">
+        <div class="tx-icon" style="background:${ci.color}22">${ci.emoji}</div>
         <div class="tx-info">
           <div class="tx-desc">${t.description||ci.label}${!t.synced?'<span class="offline-dot"></span>':''}</div>
-          <div class="tx-cat">${ci.label}${t.type==='payslip'?' · Payslip':''}</div>
+          <div class="tx-cat">${ci.label}${t.type==='payslip'?' · Payslip':t.type==='savings'?' · Savings':''}</div>
         </div>
-        <div class="tx-right">
-          <div class="tx-amt ${isExp?'exp':'inc'}">${isExp?'−':'+'}${php(t.amount)}</div>
-        </div>
+        <div class="tx-right"><div class="tx-amt ${amtClass}">${prefix}${php(t.amount)}</div></div>
       </div>`;
     });
-    html += `</div></div>`;
+    html+=`</div></div>`;
   });
-  document.getElementById('tx-list').innerHTML = html;
+  document.getElementById('tx-list').innerHTML=html;
 }
 
-// ════════════════════════════════════════════════════════════
-// VIEW TX DETAIL
-// ════════════════════════════════════════════════════════════
-async function viewTx(id) {
-  const t = (await dbAll('transactions')).find(x=>x.id===id);
-  if (!t) return;
-  const ci = catInfo(t.category);
-  const isExp = t.type==='expense';
-  document.getElementById('td-title').textContent = t.description || ci.label;
-
-  let body = `<div style="text-align:center;padding:16px 0 20px">
+// ═══ VIEW TX DETAIL ═══════════════════════════════════════════
+async function viewTx(id){
+  const t=(await dbAll('transactions')).find(x=>x.id===id);
+  if(!t)return;
+  const isSav=t.type==='savings';
+  const ci=isSav&&t.savingsBucketSnapshot?{emoji:'🪣',label:t.savingsBucketSnapshot.name,color:t.savingsBucketSnapshot.color}:catInfo(t.category);
+  const isExp=t.type==='expense';
+  const amtColor=isSav?'var(--acc2)':isExp?'var(--red)':'var(--green)';
+  const prefix=isSav?'→':isExp?'−':'+';
+  document.getElementById('td-title').textContent=t.description||ci.label;
+  let body=`<div style="text-align:center;padding:16px 0 20px">
     <div style="font-size:48px;margin-bottom:8px">${ci.emoji}</div>
-    <div style="font-size:32px;font-weight:700;color:${isExp?'var(--red)':'var(--green)'}">${isExp?'−':'+'}${php(t.amount)}</div>
+    <div style="font-size:32px;font-weight:700;color:${amtColor}">${prefix}${php(t.amount)}</div>
     <div style="font-size:13px;color:var(--text3);margin-top:4px">${fmtDate(t.date)} · ${ci.label}</div>
   </div>`;
-
-  if (t.notes) body += `<div style="background:var(--bg3);border-radius:var(--rs);padding:12px;margin-bottom:12px;font-size:13px;color:var(--text2)">${t.notes}</div>`;
-
-  if (t.type==='payslip' && t.payslipData) {
-    const p = typeof t.payslipData==='string'?JSON.parse(t.payslipData):t.payslipData;
-    body += `<div class="card"><div class="card-title">Payslip details</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px">
-        <div style="color:var(--text3)">Period</div><div style="text-align:right">${p.period||'—'}</div>
-        <div style="color:var(--text3)">Basic Pay</div><div style="text-align:right">${php(p.basicPay)}</div>
-        <div style="color:var(--text3)">SSS</div><div style="text-align:right;color:var(--red)">−${php(p.sss)}</div>
-        <div style="color:var(--text3)">HDMF</div><div style="text-align:right;color:var(--red)">−${php(p.hdmf)}</div>
-        <div style="color:var(--text3)">PhilHealth</div><div style="text-align:right;color:var(--red)">−${php(p.philhealth)}</div>
-        <div style="color:var(--text3)">Absences</div><div style="text-align:right;color:var(--red)">−${php(p.absences)}</div>
-        <div style="color:var(--text3)">SLRY/HLDY</div><div style="text-align:right;color:var(--green)">+${php(p.slryHldy)}</div>
-        <div style="font-weight:700">NET</div><div style="text-align:right;font-weight:700;color:var(--acc2)">${php(t.amount)}</div>
-      </div></div>`;
+  if(t.notes)body+=`<div style="background:var(--bg3);border-radius:var(--rs);padding:12px;margin-bottom:12px;font-size:13px;color:var(--text2)">${t.notes}</div>`;
+  if(t.type==='payslip'&&t.payslipData){
+    const p=typeof t.payslipData==='string'?JSON.parse(t.payslipData):t.payslipData;
+    body+=`<div class="card"><div class="card-title">Payslip details</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px">
+      <div style="color:var(--text3)">Period</div><div style="text-align:right">${p.period||'—'}</div>
+      <div style="color:var(--text3)">Basic Pay</div><div style="text-align:right">${php(p.basicPay)}</div>
+      <div style="color:var(--text3)">SSS</div><div style="text-align:right;color:var(--red)">−${php(p.sss)}</div>
+      <div style="color:var(--text3)">HDMF</div><div style="text-align:right;color:var(--red)">−${php(p.hdmf)}</div>
+      <div style="color:var(--text3)">PhilHealth</div><div style="text-align:right;color:var(--red)">−${php(p.philhealth)}</div>
+      <div style="color:var(--text3)">Absences</div><div style="text-align:right;color:var(--red)">−${php(p.absences)}</div>
+      <div style="color:var(--text3)">SLRY/HLDY</div><div style="text-align:right;color:var(--green)">+${php(p.slryHldy)}</div>
+      <div style="font-weight:700">NET</div><div style="text-align:right;font-weight:700;color:var(--acc2)">${php(t.amount)}</div>
+    </div></div>`;
   }
-
-  if (t.applySplit && t.amount > 0) {
-    const isDeduction = t.type === 'expense';
-    const splitSign = isDeduction ? '−' : '+';
-    const splitColor = isDeduction ? 'color:var(--red)' : '';
-    body += `<div class="card"><div class="card-title">${isDeduction ? 'Deducted from buckets' : 'Savings split'}</div><div class="split-preview">`;
-    buckets.forEach(b => {
-      body += `<div class="split-item"><div class="split-dot" style="background:${b.color}"></div><div class="split-name" style="color:${b.color}">${b.name}</div><div class="split-desc">${b.percent}%</div><div class="split-amt" style="${splitColor}">${splitSign}${php(t.amount*b.percent/100)}</div></div>`;
-    });
-    body += `</div></div>`;
+  if(t.applySplit&&t.amount>0){
+    const isDeduction=t.type==='expense';
+    const sign=isDeduction?'−':'+';
+    const sc=isDeduction?'color:var(--red)':'';
+    body+=`<div class="card"><div class="card-title">${isDeduction?'Deducted from buckets':'Savings split'}</div><div class="split-preview">`;
+    buckets.forEach(b=>{body+=`<div class="split-item"><div class="split-dot" style="background:${b.color}"></div><div class="split-name" style="color:${b.color}">${b.name}</div><div class="split-desc">${b.percent}%</div><div class="split-amt" style="${sc}">${sign}${php(t.amount*b.percent/100)}</div></div>`;});
+    body+=`</div></div>`;
   }
-
-  body += `<button class="btn btn-p" style="margin-bottom:0" onclick="editTx('${t.id}')">✏ Edit Entry</button>
+  body+=`<button class="btn btn-p" style="margin-bottom:0" onclick="editTx('${t.id}')">✏ Edit Entry</button>
     <button class="btn btn-d" onclick="deleteTx('${t.id}')">Delete Entry</button>
     <button class="btn btn-g" onclick="closeModal('modal-tx-detail')">Close</button>`;
-  document.getElementById('td-body').innerHTML = body;
+  document.getElementById('td-body').innerHTML=body;
   openModal('modal-tx-detail');
 }
 
-// ════════════════════════════════════════════════════════════
-// EDIT TRANSACTION
-// ════════════════════════════════════════════════════════════
-async function editTx(id) {
-  const t = (await dbAll('transactions')).find(x=>x.id===id);
-  if (!t) return;
-
+// ═══ EDIT TX ══════════════════════════════════════════════════
+async function editTx(id){
+  const t=(await dbAll('transactions')).find(x=>x.id===id);
+  if(!t)return;
   closeModal('modal-tx-detail');
-
-  // Pre-fill all fields same as showAddTx but with existing data
-  document.getElementById('tx-amount').value = t.amount || '';
-  document.getElementById('tx-date').value = t.date || new Date().toISOString().split('T')[0];
-  document.getElementById('tx-desc').value = t.description || '';
-  document.getElementById('tx-notes').value = t.notes || '';
-
-  // Set type — this resets the form sections
-  setType(t.type || 'expense');
-  if (t.type === 'savings' && t.savingsBucketSnapshot) {
-    selectedSavingsBucket = t.savingsBucketSnapshot;
-    setTimeout(() => {
-      document.querySelectorAll('#savings-bucket-grid .cat-item').forEach(el => {
-        const isSelected = el.id === `svbkt-${t.savingsBucketSnapshot.id}`;
-        el.classList.toggle('selected', isSelected);
-        el.style.borderColor = isSelected ? t.savingsBucketSnapshot.color : '';
+  document.getElementById('tx-amount').value=t.amount||'';
+  document.getElementById('tx-date').value=t.date||new Date().toISOString().split('T')[0];
+  document.getElementById('tx-desc').value=t.description||'';
+  document.getElementById('tx-notes').value=t.notes||'';
+  setType(t.type||'expense');
+  if(t.type==='savings'&&t.savingsBucketSnapshot){
+    selectedSavingsBucket=t.savingsBucketSnapshot;
+    setTimeout(()=>{
+      document.querySelectorAll('#savings-bucket-grid .cat-item').forEach(el=>{
+        const isSel=el.id===`svbkt-${t.savingsBucketSnapshot.id}`;
+        el.classList.toggle('selected',isSel);
+        el.style.borderColor=isSel?t.savingsBucketSnapshot.color:'';
       });
-    }, 0);
+    },50);
   }
-
-  // Set category
-  selectedCat = t.category || (t.type==='expense'?'food':'salary');
-  // Re-render cat grid with correct selection
-  renderCatGrid(t.type==='expense'?EXP_CATS:INC_CATS);
-  // Manually mark selected after render
-  setTimeout(() => {
-    document.querySelectorAll('.cat-item').forEach(el => {
-      el.classList.toggle('selected', el.getAttribute('onclick')?.includes(`'${selectedCat}'`));
-    });
-  }, 0);
-
-  // Apply split toggle
-  if (t.type !== 'expense') {
-    document.getElementById('tx-apply-split').checked = !!t.applySplit;
+  selectedCat=t.category||(t.type==='expense'?'food':'salary');
+  if(t.type!=='payslip'&&t.type!=='savings'){
+    renderCatGrid(t.type==='expense'?EXP_CATS:INC_CATS);
+    setTimeout(()=>{
+      document.querySelectorAll('.cat-item').forEach(el=>{
+        el.classList.toggle('selected',el.getAttribute('onclick')?.includes(`'${selectedCat}'`));
+      });
+    },50);
+  }
+  if(t.type!=='expense'&&t.type!=='savings'){
+    document.getElementById('tx-apply-split').checked=!!t.applySplit;
     onSplitToggle();
   }
-
-  // Pre-fill payslip fields if payslip type
-  if (t.type === 'payslip' && t.payslipData) {
-    const p = typeof t.payslipData==='string' ? JSON.parse(t.payslipData) : t.payslipData;
-    const setVal = (id, val) => { const el=document.getElementById(id); if(el) el.value=val||''; };
-    setVal('ps-period', p.period);
-    setVal('ps-days',   p.numDays);
-    setVal('ps-basic',  p.basicPay);
-    setVal('ps-ot',     p.ot);
-    setVal('ps-hol',    p.holidays);
-    setVal('ps-sss',    p.sss);
-    setVal('ps-hdmf',   p.hdmf);
-    setVal('ps-ph',     p.philhealth);
-    setVal('ps-wtax',   p.wtax);
-    setVal('ps-loans',  p.loans);
-    setVal('ps-tard',   p.tardiness);
-    setVal('ps-under',  p.undertime);
-    setVal('ps-abs',    p.absences);
-    setVal('ps-slry',   p.slryHldy);
+  if(t.type==='expense'){
+    document.getElementById('tx-apply-split').checked=!!t.applySplit;
+    onSplitToggle();
+  }
+  if(t.type==='payslip'&&t.payslipData){
+    const p=typeof t.payslipData==='string'?JSON.parse(t.payslipData):t.payslipData;
+    const sv=(id,val)=>{const el=document.getElementById(id);if(el)el.value=val||'';};
+    sv('ps-period',p.period);sv('ps-days',p.numDays);sv('ps-basic',p.basicPay);
+    sv('ps-ot',p.ot);sv('ps-hol',p.holidays);sv('ps-sss',p.sss);sv('ps-hdmf',p.hdmf);
+    sv('ps-ph',p.philhealth);sv('ps-wtax',p.wtax);sv('ps-loans',p.loans);
+    sv('ps-tard',p.tardiness);sv('ps-under',p.undertime);sv('ps-abs',p.absences);sv('ps-slry',p.slryHldy);
     calcPayslipNet();
   }
-
-  // Change submit button to update mode
-  const submitBtn = document.getElementById('tx-submit-btn');
-  submitBtn.textContent = t.type==='payslip' ? 'Update Payslip' : 'Update Entry';
-  submitBtn.onclick = () => updateTx(id);
-
-  document.getElementById('modal-tx').querySelector('.modal-title').textContent = 'Edit Entry';
+  const btn=document.getElementById('tx-submit-btn');
+  btn.textContent=t.type==='payslip'?'Update Payslip':t.type==='savings'?'Update Savings':'Update Entry';
+  btn.onclick=()=>updateTx(id);
+  document.getElementById('modal-tx').querySelector('.modal-title').textContent='Edit Entry';
   openModal('modal-tx');
 }
 
-  async function updateTx(id) {
-  const existing = (await dbAll('transactions')).find(x=>x.id===id);
-  if (!existing) return;
-
-  let amount = parseFloat(document.getElementById('tx-amount').value)||0;
-  const date = document.getElementById('tx-date').value;
-  const desc = document.getElementById('tx-desc').value;
-  const notes = document.getElementById('tx-notes').value;
-  const applySplit = document.getElementById('tx-apply-split').checked;
-
-  if (!amount || !date) { toast('Fill in amount and date.'); return; }
-
-  let payslipData = existing.payslipData;
-  let savingsBucketSnapshot = existing.savingsBucketSnapshot || null;
-  let category = selectedCat;
-
-  if (currentType === 'savings') {
-    if (!selectedSavingsBucket) { toast('Select a bucket first.'); return; }
-    savingsBucketSnapshot = { id: selectedSavingsBucket.id, name: selectedSavingsBucket.name, color: selectedSavingsBucket.color };
-    category = 'savings';
-  } else if (currentType === 'payslip') {
-    category = 'salary';
-    const g = id => parseFloat(document.getElementById(id)?.value)||0;
-    payslipData = {
-      period: document.getElementById('ps-period')?.value||'',
-      numDays: g('ps-days'), basicPay: g('ps-basic'),
-      ot: g('ps-ot'), holidays: g('ps-hol'),
-      sss: g('ps-sss'), hdmf: g('ps-hdmf'), philhealth: g('ps-ph'), wtax: g('ps-wtax'), loans: g('ps-loans'),
-      tardiness: g('ps-tard'), undertime: g('ps-under'), absences: g('ps-abs'), slryHldy: g('ps-slry')
-    };
+async function updateTx(id){
+  const existing=(await dbAll('transactions')).find(x=>x.id===id);
+  if(!existing)return;
+  const amount=parseFloat(document.getElementById('tx-amount').value)||0;
+  const date=document.getElementById('tx-date').value;
+  const desc=document.getElementById('tx-desc').value;
+  const notes=document.getElementById('tx-notes').value;
+  const applySplit=document.getElementById('tx-apply-split').checked;
+  if(!amount||!date){toast('Fill in amount and date.');return;}
+  let payslipData=existing.payslipData;
+  let savingsBucketSnapshot=existing.savingsBucketSnapshot||null;
+  let category=selectedCat;
+  if(currentType==='savings'){
+    if(!selectedSavingsBucket){toast('Select a bucket first.');return;}
+    savingsBucketSnapshot={id:selectedSavingsBucket.id,name:selectedSavingsBucket.name,color:selectedSavingsBucket.color};
+    category='savings';
+  }else if(currentType==='payslip'){
+    category='salary';
+    const g=id=>parseFloat(document.getElementById(id)?.value)||0;
+    payslipData={period:document.getElementById('ps-period')?.value||'',numDays:g('ps-days'),basicPay:g('ps-basic'),ot:g('ps-ot'),holidays:g('ps-hol'),sss:g('ps-sss'),hdmf:g('ps-hdmf'),philhealth:g('ps-ph'),wtax:g('ps-wtax'),loans:g('ps-loans'),tardiness:g('ps-tard'),undertime:g('ps-under'),absences:g('ps-abs'),slryHldy:g('ps-slry')};
   }
-
-const updated = {
-    ...existing,
-    date, type: currentType, category,
-    description: desc || (currentType==='savings' ? (savingsBucketSnapshot?.name||'Savings') : catInfo(category).label),
-    amount, applySplit, payslipData, savingsBucketSnapshot, notes,
-    synced: false, updatedAt: Date.now()
-  };
-
-  await dbPut('transactions', updated);
-
-  // Reset submit button back to normal
-  const submitBtn = document.getElementById('tx-submit-btn');
-  submitBtn.textContent = 'Save Entry';
-  submitBtn.onclick = submitTx;
-  document.getElementById('modal-tx').querySelector('.modal-title').textContent = 'New Entry';
-
+  const updated={...existing,date,type:currentType,category,description:desc||(currentType==='savings'?(savingsBucketSnapshot?.name||'Savings'):catInfo(category).label),amount,applySplit,payslipData,savingsBucketSnapshot,notes,synced:false,updatedAt:Date.now()};
+  await dbPut('transactions',updated);
+  const btn=document.getElementById('tx-submit-btn');
+  btn.textContent='Save Entry';btn.onclick=submitTx;
+  document.getElementById('modal-tx').querySelector('.modal-title').textContent='New Entry';
   closeModal('modal-tx');
   toast('Updated!'+(isOnline?'':' (offline)'));
-  currentMonth = new Date(date+'T00:00:00');
+  currentMonth=new Date(date+'T00:00:00');
   renderTxList();
-  if (isOnline) syncPending();
+  if(isOnline)syncPending();
 }
 
-async function deleteTx(id) {
-  if (!confirm('Delete this entry?')) return;
-  await dbDel('transactions', id);
+async function deleteTx(id){
+  if(!confirm('Delete this entry?'))return;
+  await dbDel('transactions',id);
   closeModal('modal-tx-detail');
-  const url = await getSetting('gas_api_url','');
-  if (isOnline && url) gasPost({ action:'deleteTransaction', id }).catch(()=>{});
-  toast('Deleted.');
-  renderTxList();
+  const url=await getSetting('gas_api_url','');
+  if(isOnline&&url)gasPost({action:'deleteTransaction',id}).catch(()=>{});
+  toast('Deleted.');renderTxList();
 }
 
-// ════════════════════════════════════════════════════════════
-// ADD TRANSACTION MODAL
-// ════════════════════════════════════════════════════════════
-function showAddTx() {
-  // Reset
-  document.getElementById('tx-amount').value = '';
-  document.getElementById('tx-date').value = new Date().toISOString().split('T')[0];
-  document.getElementById('tx-desc').value = '';
-  document.getElementById('tx-notes').value = '';
-  document.getElementById('tx-apply-split').checked = true;
-  ['ps-period','ps-basic','ps-ot','ps-hol','ps-sss','ps-hdmf','ps-ph','ps-wtax','ps-loans','ps-tard','ps-under','ps-abs','ps-slry'].forEach(id=>{
-    const el = document.getElementById(id); if(el) el.value='';
-  });
+// ═══ ADD TX MODAL ══════════════════════════════════════════════
+function showAddTx(){
+  document.getElementById('tx-amount').value='';
+  document.getElementById('tx-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('tx-desc').value='';
+  document.getElementById('tx-notes').value='';
+  document.getElementById('sv-memo').value='';
+  document.getElementById('tx-apply-split').checked=true;
+  ['ps-period','ps-basic','ps-ot','ps-hol','ps-sss','ps-hdmf','ps-ph','ps-wtax','ps-loans','ps-tard','ps-under','ps-abs','ps-slry'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('net-box-val').textContent='₱—';
   document.getElementById('net-box-val').style.color='var(--text3)';
-  document.getElementById('sv-memo').value='';
-  selectedSavingsBucket = buckets[0] || null;
+  document.getElementById('split-preview-wrap').style.display='none';
+  selectedSavingsBucket=buckets[0]||null;
   setType('expense');
   openModal('modal-tx');
 }
 
-function setType(type) {
-  currentType = type;
-  ['expense','income','payslip','savings'].forEach(t => {
-    document.getElementById('type-'+t).classList.toggle('active', t===type);
-  });
-  document.getElementById('cat-section').style.display = (type==='payslip'||type==='savings')?'none':'block';
-  document.getElementById('payslip-section').style.display = type==='payslip'?'block':'none';
-  document.getElementById('savings-section').style.display = type==='savings'?'block':'none';
-  if (type==='savings') renderSavingsBucketGrid();
-  const splitRow = document.getElementById('split-toggle-row');
-  const splitSub = document.getElementById('split-toggle-sub');
-  splitRow.style.display = type==='savings' ? 'none' : 'block';
-  document.getElementById('split-preview-wrap').style.display = type==='savings' ? 'none' : document.getElementById('split-preview-wrap').style.display;
-  if (type==='expense') {
-    splitSub.textContent = 'Deduct this expense from a savings bucket?';
-    document.getElementById('tx-apply-split').checked = false;
-  } else if (type==='payslip') {
-    splitSub.textContent = 'Show savings split for this payslip';
-    document.getElementById('tx-apply-split').checked = true;
-  } else {
-    splitSub.textContent = 'Include in savings bucket calculation?';
+function setType(type){
+  currentType=type;
+  ['expense','income','payslip','savings'].forEach(t=>{document.getElementById('type-'+t).classList.toggle('active',t===type);});
+  document.getElementById('cat-section').style.display=(type==='payslip'||type==='savings')?'none':'block';
+  document.getElementById('payslip-section').style.display=type==='payslip'?'block':'none';
+  document.getElementById('savings-section').style.display=type==='savings'?'block':'none';
+  if(type==='savings')renderSavingsBucketGrid();
+  const splitRow=document.getElementById('split-toggle-row');
+  // Show split toggle for expense, income, payslip — hide for savings
+  splitRow.style.display=type==='savings'?'none':'block';
+  const splitSub=document.getElementById('split-toggle-sub');
+  if(type==='expense'){
+    splitSub.textContent='Deduct this expense from savings buckets';
+    document.getElementById('tx-apply-split').checked=false;
+  }else if(type==='payslip'){
+    splitSub.textContent='Show savings split for this payslip';
+    document.getElementById('tx-apply-split').checked=true;
+  }else if(type==='income'){
+    splitSub.textContent='Show how to distribute this income';
+    document.getElementById('tx-apply-split').checked=true;
   }
-  onSplitToggle();
+  if(type!=='savings')onSplitToggle();else document.getElementById('split-preview-wrap').style.display='none';
   renderCatGrid(type==='expense'?EXP_CATS:INC_CATS);
-  if (type==='payslip') selectedCat='salary';
-  else selectedCat = type==='expense'?'food':'salary';
-  document.getElementById('tx-submit-btn').textContent = type==='payslip'?'Save Payslip':type==='savings'?'Save to Bucket':'Save Entry';
+  selectedCat=type==='expense'?'food':'salary';
+  document.getElementById('tx-submit-btn').textContent=type==='payslip'?'Save Payslip':type==='savings'?'Save to Bucket':'Save Entry';
 }
 
-function renderSavingsBucketGrid() {
-  selectedSavingsBucket = buckets[0] || null;
-  document.getElementById('savings-bucket-grid').innerHTML = buckets.map((b,i) =>
-    `<div class="cat-item ${i===0?'selected':''}" id="svbkt-${b.id}" onclick="selectSavingsBucket('${b.id}',this)" style="border-color:${i===0?b.color:''}">
+function renderSavingsBucketGrid(){
+  selectedSavingsBucket=buckets[0]||null;
+  document.getElementById('savings-bucket-grid').innerHTML=buckets.map((b,i)=>
+    `<div class="cat-item ${i===0?'selected':''}" id="svbkt-${b.id}" onclick="selectSavingsBucket('${b.id}',this)" style="${i===0?`border-color:${b.color}`:''}">
       <span class="ci-icon" style="width:14px;height:14px;border-radius:50%;background:${b.color};display:inline-block"></span>
       <span class="ci-label">${b.name}</span>
     </div>`
   ).join('');
 }
 
-function selectSavingsBucket(id, el) {
-  selectedSavingsBucket = buckets.find(b=>b.id===id) || null;
-  document.querySelectorAll('#savings-bucket-grid .cat-item').forEach(e=>{
-    e.classList.remove('selected');
-    e.style.borderColor='';
-  });
+function selectSavingsBucket(id,el){
+  selectedSavingsBucket=buckets.find(b=>b.id===id)||null;
+  document.querySelectorAll('#savings-bucket-grid .cat-item').forEach(e=>{e.classList.remove('selected');e.style.borderColor='';});
   el.classList.add('selected');
-  if (selectedSavingsBucket) el.style.borderColor = selectedSavingsBucket.color;
+  if(selectedSavingsBucket)el.style.borderColor=selectedSavingsBucket.color;
 }
 
-function renderCatGrid(cats) {
-  document.getElementById('cat-grid').innerHTML = cats.map(cat => {
-    const ci = catInfo(cat);
-    return `<div class="cat-item ${cat===selectedCat?'selected':''}" onclick="selectCat('${cat}',this)">
-      <span class="ci-icon">${ci.emoji}</span>
-      <span class="ci-label">${ci.label}</span>
-    </div>`;
+function renderCatGrid(cats){
+  document.getElementById('cat-grid').innerHTML=cats.map(cat=>{
+    const ci=catInfo(cat);
+    return `<div class="cat-item ${cat===selectedCat?'selected':''}" onclick="selectCat('${cat}',this)"><span class="ci-icon">${ci.emoji}</span><span class="ci-label">${ci.label}</span></div>`;
   }).join('');
 }
 
-function selectCat(cat, el) {
-  selectedCat = cat;
+function selectCat(cat,el){
+  selectedCat=cat;
   document.querySelectorAll('.cat-item').forEach(e=>e.classList.remove('selected'));
   el.classList.add('selected');
 }
 
-function onAmountInput() {
-  if (currentType !== 'expense') onSplitToggle();
+function onAmountInput(){onSplitToggle();}
+
+function onSplitToggle(){
+  if(currentType==='savings'){document.getElementById('split-preview-wrap').style.display='none';return;}
+  const apply=document.getElementById('tx-apply-split').checked;
+  const amt=parseFloat(document.getElementById('tx-amount').value)||0;
+  const wrap=document.getElementById('split-preview-wrap');
+  if(apply&&amt>0){
+    wrap.style.display='block';
+    const isDeduction=currentType==='expense';
+    document.getElementById('split-preview-title').textContent=isDeduction?'Deducted from buckets':'Savings split';
+    const sign=isDeduction?'−':'+';
+    const sc=isDeduction?'color:var(--red)':'';
+    document.getElementById('split-preview-inner').innerHTML=buckets.map(b=>
+      `<div class="split-item"><div class="split-dot" style="background:${b.color}"></div><div class="split-name" style="color:${b.color}">${b.name}</div><div class="split-desc">${b.percent}%</div><div class="split-amt" style="${sc}">${sign}${php(amt*b.percent/100)}</div></div>`
+    ).join('');
+  }else{wrap.style.display='none';}
 }
 
-function onSplitToggle() {
-  const apply = document.getElementById('tx-apply-split').checked;
-  const amt = parseFloat(document.getElementById('tx-amount').value)||0;
-  const wrap = document.getElementById('split-preview-wrap');
-  if (apply && amt > 0) {
-    wrap.style.display = 'block';
-    renderSplitPreview(amt, currentType === 'expense');
-  } else {
-    wrap.style.display = 'none';
-  }
-}
-
-function renderSplitPreview(amt, isDeduction=false) {
-  const sign = isDeduction ? '−' : '+';
-  const amtColor = isDeduction ? 'color:var(--red)' : '';
-  document.getElementById('split-preview-inner').innerHTML = buckets.map(b =>
-    `<div class="split-item"><div class="split-dot" style="background:${b.color}"></div><div class="split-name" style="color:${b.color}">${b.name}</div><div class="split-desc">${b.percent}%</div><div class="split-amt" style="${amtColor}">${sign}${php(amt*b.percent/100)}</div></div>`
-  ).join('');
-  const title = document.querySelector('#split-preview-wrap .card-title');
-  if (title) title.textContent = isDeduction ? 'Deducted from buckets' : 'Savings split';
-}
-
-function calcPayslipNet() {
-  const g = id => parseFloat(document.getElementById(id)?.value)||0;
-  const adds = g('ps-ot')+g('ps-hol')+g('ps-slry');
-  const deds = g('ps-sss')+g('ps-hdmf')+g('ps-ph')+g('ps-wtax')+g('ps-loans');
-  const less = g('ps-tard')+g('ps-under')+g('ps-abs');
-  const net = g('ps-basic')+adds-deds-less-25;
-  const el = document.getElementById('net-box-val');
-  el.textContent = php(net);
-  el.style.color = net<0?'var(--red)':net<4000?'var(--amber)':'var(--green)';
+function calcPayslipNet(){
+  const g=id=>parseFloat(document.getElementById(id)?.value)||0;
+  const adds=g('ps-ot')+g('ps-hol')+g('ps-slry');
+  const deds=g('ps-sss')+g('ps-hdmf')+g('ps-ph')+g('ps-wtax')+g('ps-loans');
+  const less=g('ps-tard')+g('ps-under')+g('ps-abs');
+  const net=g('ps-basic')+adds-deds-less-25;
+  const el=document.getElementById('net-box-val');
+  el.textContent=php(net);
+  el.style.color=net<0?'var(--red)':net<4000?'var(--amber)':'var(--green)';
   document.getElementById('nb-adds').textContent=php(adds);
   document.getElementById('nb-deds').textContent=php(deds+25);
   document.getElementById('nb-less').textContent=php(less);
-  // Update amount field
-  if (net > 0) {
-    document.getElementById('tx-amount').value = net.toFixed(2);
-    onSplitToggle();
-  }
+  if(net>0){document.getElementById('tx-amount').value=net.toFixed(2);onSplitToggle();}
 }
 
-async function submitTx() {
-  let amount = parseFloat(document.getElementById('tx-amount').value)||0;
-  const date = document.getElementById('tx-date').value;
-  const desc = document.getElementById('tx-desc').value;
-  const notes = document.getElementById('tx-notes').value;
-const applySplit = document.getElementById('tx-apply-split').checked;
-
-  if (!amount || !date) { toast('Fill in amount and date.'); return; }
-
-let payslipData = null;
-  let category = selectedCat;
-  let savingsBucketSnapshot = null;
-
-  if (currentType === 'payslip') {
-    category = 'salary';
-    const g = id => parseFloat(document.getElementById(id)?.value)||0;
-    payslipData = {
-      period: document.getElementById('ps-period')?.value||'',
-      numDays: g('ps-days'), basicPay: g('ps-basic'),
-      ot: g('ps-ot'), holidays: g('ps-hol'),
-      sss: g('ps-sss'), hdmf: g('ps-hdmf'), philhealth: g('ps-ph'), wtax: g('ps-wtax'), loans: g('ps-loans'),
-      tardiness: g('ps-tard'), undertime: g('ps-under'), absences: g('ps-abs'), slryHldy: g('ps-slry')
-    };
-  } else if (currentType === 'savings') {
-    if (!selectedSavingsBucket) { toast('Select a bucket first.'); return; }
-    // Snapshot the bucket at time of save — name/color frozen forever
-    savingsBucketSnapshot = {
-      id:    selectedSavingsBucket.id,
-      name:  selectedSavingsBucket.name,
-      color: selectedSavingsBucket.color
-    };
-    category = 'savings';
+async function submitTx(){
+  const amount=parseFloat(document.getElementById('tx-amount').value)||0;
+  const date=document.getElementById('tx-date').value;
+  const desc=document.getElementById('tx-desc').value;
+  const notes=document.getElementById('tx-notes').value;
+  const applySplit=currentType!=='savings'&&document.getElementById('tx-apply-split').checked;
+  if(!amount||!date){toast('Fill in amount and date.');return;}
+  let payslipData=null, category=selectedCat, savingsBucketSnapshot=null;
+  if(currentType==='payslip'){
+    category='salary';
+    const g=id=>parseFloat(document.getElementById(id)?.value)||0;
+    payslipData={period:document.getElementById('ps-period')?.value||'',numDays:g('ps-days'),basicPay:g('ps-basic'),ot:g('ps-ot'),holidays:g('ps-hol'),sss:g('ps-sss'),hdmf:g('ps-hdmf'),philhealth:g('ps-ph'),wtax:g('ps-wtax'),loans:g('ps-loans'),tardiness:g('ps-tard'),undertime:g('ps-under'),absences:g('ps-abs'),slryHldy:g('ps-slry')};
+  }else if(currentType==='savings'){
+    if(!selectedSavingsBucket){toast('Select a bucket first.');return;}
+    savingsBucketSnapshot={id:selectedSavingsBucket.id,name:selectedSavingsBucket.name,color:selectedSavingsBucket.color};
+    category='savings';
   }
-
-  const tx = {
-    id: genId('TX'), date, type: currentType, category,
-    description: desc || (currentType==='savings' ? (savingsBucketSnapshot?.name||'Savings') : catInfo(category).label),
-    amount, applySplit, payslipData, savingsBucketSnapshot, notes, synced: false, createdAt: Date.now()
+  const tx={
+    id:genId('TX'),date,type:currentType,category,
+    description:desc||(currentType==='savings'?(savingsBucketSnapshot?.name||'Savings'):catInfo(category).label),
+    amount,applySplit,payslipData,savingsBucketSnapshot,notes,synced:false,createdAt:Date.now()
   };
-
-  const tx = {
-    id: genId('TX'), date, type: currentType, category,
-    description: desc || catInfo(category).label,
-    amount, applySplit, payslipData, notes, synced: false, createdAt: Date.now()
-  };
-
-  await dbPut('transactions', tx);
+  await dbPut('transactions',tx);
   closeModal('modal-tx');
   toast('Saved!'+(isOnline?'':' (offline)'));
-  currentMonth = new Date(date+'T00:00:00');
+  currentMonth=new Date(date+'T00:00:00');
   renderTxList();
-  if (isOnline) syncPending();
+  if(isOnline)syncPending();
 }
 
-// ════════════════════════════════════════════════════════════
-// GRAPHS
-// ════════════════════════════════════════════════════════════
-function setGraphPeriod(period, btn) {
-  graphPeriod = period;
+// ═══ GRAPHS ════════════════════════════════════════════════════
+function setGraphPeriod(period,btn){
+  graphPeriod=period;
   document.querySelectorAll('.gp-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderGraphs();
+  btn.classList.add('active');renderGraphs();
 }
-
-async function renderGraphs() {
-  const txs = await dbAll('transactions');
-  const now = new Date();
-
-  let months = [];
-  if (graphPeriod==='this') { months = [monthKey(now)]; }
-  else if (graphPeriod==='last') { months = [monthKey(new Date(now.getFullYear(),now.getMonth()-1,1))]; }
-  else if (graphPeriod==='3m') { for(let i=2;i>=0;i--) months.push(monthKey(new Date(now.getFullYear(),now.getMonth()-i,1))); }
-  else if (graphPeriod==='6m') { for(let i=5;i>=0;i--) months.push(monthKey(new Date(now.getFullYear(),now.getMonth()-i,1))); }
-
-  const filtered = txs.filter(t => months.some(m => (t.date||'').startsWith(m)));
-
-  // Bar chart
-  renderBarChart(txs, months);
-
-  // Expense donut
-  const expenses = filtered.filter(t=>t.type==='expense');
-  renderDonut(expenses, 'expense-donut', 'exp');
-
-  // Income donut
-  const incomes = filtered.filter(t=>t.type!=='expense');
-  renderDonut(incomes, 'income-donut', 'inc');
-
-  // Net flow
+async function renderGraphs(){
+  const txs=await dbAll('transactions');
+  const now=new Date();
+  let months=[];
+  if(graphPeriod==='this')months=[monthKey(now)];
+  else if(graphPeriod==='last')months=[monthKey(new Date(now.getFullYear(),now.getMonth()-1,1))];
+  else if(graphPeriod==='3m')for(let i=2;i>=0;i--)months.push(monthKey(new Date(now.getFullYear(),now.getMonth()-i,1)));
+  else if(graphPeriod==='6m')for(let i=5;i>=0;i--)months.push(monthKey(new Date(now.getFullYear(),now.getMonth()-i,1)));
+  const filtered=txs.filter(t=>months.some(m=>(t.date||'').startsWith(m)));
+  renderBarChart(txs,months);
+  renderDonut(filtered.filter(t=>t.type==='expense'),'expense-donut');
+  renderDonut(filtered.filter(t=>t.type!=='expense'&&t.type!=='savings'),'income-donut');
   renderNetFlow(txs);
-
-  // Last income buckets
-  const lastIncome = txs.filter(t=>t.type!=='expense'&&t.applySplit).sort((a,b)=>b.createdAt-a.createdAt)[0];
-  if (lastIncome) {
-    document.getElementById('graph-buckets').innerHTML = buckets.map(b =>
-      `<div class="brow" style="display:flex;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)">
+  const lastIncome=txs.filter(t=>t.type!=='expense'&&t.type!=='savings'&&t.applySplit).sort((a,b)=>b.createdAt-a.createdAt)[0];
+  if(lastIncome){
+    document.getElementById('graph-buckets').innerHTML=buckets.map(b=>
+      `<div style="display:flex;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)">
         <div style="width:8px;height:8px;border-radius:50%;background:${b.color};margin-right:10px;flex-shrink:0"></div>
         <div style="font-size:12px;font-weight:700;color:${b.color};flex:1">${b.name}</div>
-        <div style="font-size:11px;color:var(--text3);flex:1.5">${b.percent}% · ${catInfo(lastIncome.category).label}</div>
+        <div style="font-size:11px;color:var(--text3);flex:1.5">${b.percent}%</div>
         <div style="font-size:13px;font-weight:600">${php(lastIncome.amount*b.percent/100)}</div>
       </div>`
     ).join('');
   }
 }
-
-function renderBarChart(txs, months) {
-  const wrap = document.getElementById('graph-bar');
-  if (!months.length) { wrap.innerHTML='<div style="color:var(--text3);font-size:12px">No data</div>'; return; }
-
-  const data = months.map(mk => {
-    const mTx = txs.filter(t=>(t.date||'').startsWith(mk));
-    return {
-      label: MONTHS_SHORT[parseInt(mk.split('-')[1])-1],
-      inc: mTx.filter(t=>t.type!=='expense').reduce((a,t)=>a+(t.amount||0),0),
-      exp: mTx.filter(t=>t.type==='expense').reduce((a,t)=>a+(t.amount||0),0)
-    };
+function renderBarChart(txs,months){
+  const wrap=document.getElementById('graph-bar');
+  if(!months.length){wrap.innerHTML='<div style="color:var(--text3);font-size:12px">No data</div>';return;}
+  const data=months.map(mk=>{
+    const mTx=txs.filter(t=>(t.date||'').startsWith(mk));
+    return{label:MONTHS_SHORT[parseInt(mk.split('-')[1])-1],inc:mTx.filter(t=>t.type!=='expense'&&t.type!=='savings').reduce((a,t)=>a+(t.amount||0),0),exp:mTx.filter(t=>t.type==='expense').reduce((a,t)=>a+(t.amount||0),0)};
   });
-
-  const max = Math.max(...data.map(d=>Math.max(d.inc,d.exp)), 1);
-  wrap.innerHTML = data.map(d => {
-    const ih = Math.max(3,(d.inc/max)*90);
-    const eh = Math.max(3,(d.exp/max)*90);
-    return `<div class="bar-col">
-      <div class="bar-pair"><div class="bar-inc" style="height:${ih}px"></div><div class="bar-exp" style="height:${eh}px"></div></div>
-      <div class="bar-lbl">${d.label}</div>
-    </div>`;
+  const max=Math.max(...data.map(d=>Math.max(d.inc,d.exp)),1);
+  wrap.innerHTML=data.map(d=>{
+    const ih=Math.max(3,(d.inc/max)*90),eh=Math.max(3,(d.exp/max)*90);
+    return `<div class="bar-col"><div class="bar-pair"><div class="bar-inc" style="height:${ih}px"></div><div class="bar-exp" style="height:${eh}px"></div></div><div class="bar-lbl">${d.label}</div></div>`;
   }).join('');
 }
-
-function renderDonut(txs, containerId, type) {
-  const wrap = document.getElementById(containerId);
-  if (!txs.length) { wrap.innerHTML=`<div style="color:var(--text3);font-size:12px">No data</div>`; return; }
-
-  const totals = {};
-  txs.forEach(t => {
-    const cat = t.category||'other';
-    totals[cat] = (totals[cat]||0) + (t.amount||0);
+function renderDonut(txs,containerId){
+  const wrap=document.getElementById(containerId);
+  if(!txs.length){wrap.innerHTML='<div style="color:var(--text3);font-size:12px">No data</div>';return;}
+  const totals={};
+  txs.forEach(t=>{const cat=t.category||'other';totals[cat]=(totals[cat]||0)+(t.amount||0);});
+  const total=Object.values(totals).reduce((a,b)=>a+b,0);
+  const sorted=Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const R=52,r=34,cx=60,cy=60,size=120;
+  let sa=-Math.PI/2,paths='';
+  sorted.forEach(([cat,val])=>{
+    const ci=catInfo(cat);const angle=(val/total)*2*Math.PI;
+    const x1=cx+R*Math.cos(sa),y1=cy+R*Math.sin(sa);
+    const x2=cx+R*Math.cos(sa+angle),y2=cy+R*Math.sin(sa+angle);
+    const lx1=cx+r*Math.cos(sa),ly1=cy+r*Math.sin(sa);
+    const lx2=cx+r*Math.cos(sa+angle),ly2=cy+r*Math.sin(sa+angle);
+    const large=angle>Math.PI?1:0;
+    paths+=`<path d="M${x1},${y1} A${R},${R} 0 ${large},1 ${x2},${y2} L${lx2},${ly2} A${r},${r} 0 ${large},0 ${lx1},${ly1} Z" fill="${ci.color}" opacity="0.85"/>`;
+    sa+=angle;
   });
-  const total = Object.values(totals).reduce((a,b)=>a+b,0);
-  const sorted = Object.entries(totals).sort((a,b)=>b[1]-a[1]).slice(0,6);
-
-  // SVG donut
-  const R=52, r=34, cx=60, cy=60, size=120;
-  let startAngle = -Math.PI/2;
-  let paths = '';
-  sorted.forEach(([cat, val]) => {
-    const ci = catInfo(cat);
-    const angle = (val/total)*2*Math.PI;
-    const x1=cx+R*Math.cos(startAngle), y1=cy+R*Math.sin(startAngle);
-    const x2=cx+R*Math.cos(startAngle+angle), y2=cy+R*Math.sin(startAngle+angle);
-    const lx1=cx+r*Math.cos(startAngle), ly1=cy+r*Math.sin(startAngle);
-    const lx2=cx+r*Math.cos(startAngle+angle), ly2=cy+r*Math.sin(startAngle+angle);
-    const large = angle>Math.PI?1:0;
-    paths += `<path d="M${x1},${y1} A${R},${R} 0 ${large},1 ${x2},${y2} L${lx2},${ly2} A${r},${r} 0 ${large},0 ${lx1},${ly1} Z" fill="${ci.color}" opacity="0.85"/>`;
-    startAngle += angle;
-  });
-  const svg = `<svg class="donut-svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${paths}<circle cx="${cx}" cy="${cy}" r="${r-2}" fill="var(--bg2)"/><text x="${cx}" y="${cy+5}" text-anchor="middle" fill="var(--text2)" font-size="10" font-family="Space Grotesk" font-weight="700">${php(total,0)}</text></svg>`;
-
-  const legend = `<div class="donut-legend">`+sorted.slice(0,5).map(([cat,val])=>{
-    const ci=catInfo(cat);
-    return `<div class="legend-item"><div class="legend-dot" style="background:${ci.color}"></div><div class="legend-label">${ci.label}</div><div class="legend-pct">${((val/total)*100).toFixed(0)}%</div></div>`;
-  }).join('')+`</div>`;
-
-  wrap.innerHTML = svg + legend;
+  const svg=`<svg class="donut-svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${paths}<circle cx="${cx}" cy="${cy}" r="${r-2}" fill="var(--bg2)"/><text x="${cx}" y="${cy+5}" text-anchor="middle" fill="var(--text2)" font-size="10" font-family="Space Grotesk" font-weight="700">${php(total,0)}</text></svg>`;
+  const legend='<div class="donut-legend">'+sorted.slice(0,5).map(([cat,val])=>{const ci=catInfo(cat);return `<div class="legend-item"><div class="legend-dot" style="background:${ci.color}"></div><div class="legend-label">${ci.label}</div><div class="legend-pct">${((val/total)*100).toFixed(0)}%</div></div>`;}).join('')+'</div>';
+  wrap.innerHTML=svg+legend;
 }
-
-function renderNetFlow(txs) {
-  const wrap = document.getElementById('net-flow-chart');
-  const now = new Date();
-  const months = [];
-  for (let i=5;i>=0;i--) {
-    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
-    months.push({ key: monthKey(d), label: MONTHS_SHORT[d.getMonth()] });
-  }
-  const data = months.map(m => {
-    const mTx = txs.filter(t=>(t.date||'').startsWith(m.key));
-    const inc = mTx.filter(t=>t.type!=='expense').reduce((a,t)=>a+(t.amount||0),0);
-    const exp = mTx.filter(t=>t.type==='expense').reduce((a,t)=>a+(t.amount||0),0);
-    return { label:m.label, net:inc-exp };
+function renderNetFlow(txs){
+  const wrap=document.getElementById('net-flow-chart');
+  const now=new Date();const months=[];
+  for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push({key:monthKey(d),label:MONTHS_SHORT[d.getMonth()]});}
+  const data=months.map(m=>{
+    const mTx=txs.filter(t=>(t.date||'').startsWith(m.key));
+    const inc=mTx.filter(t=>t.type!=='expense'&&t.type!=='savings').reduce((a,t)=>a+(t.amount||0),0);
+    const exp=mTx.filter(t=>t.type==='expense').reduce((a,t)=>a+(t.amount||0),0);
+    return{label:m.label,net:inc-exp};
   });
-  const max = Math.max(...data.map(d=>Math.abs(d.net)),1);
+  const max=Math.max(...data.map(d=>Math.abs(d.net)),1);
   const W=300,H=60,padL=8,padR=8,midY=H/2;
-  const pts = data.map((d,i)=>{
-    const x = padL + (i/(data.length-1||1))*(W-padL-padR);
-    const y = midY - (d.net/max)*(H*0.4);
-    return {x,y,d};
-  });
-  const pathD = pts.map((p,i)=>i===0?`M${p.x},${p.y}`:`L${p.x},${p.y}`).join(' ');
-  let svg = `<svg width="100%" viewBox="0 0 ${W} ${H+20}" style="overflow:visible">
-    <line x1="${padL}" y1="${midY}" x2="${W-padR}" y2="${midY}" stroke="var(--border2)" stroke-width="1"/>`;
-  pts.forEach(p => {
-    svg += `<circle cx="${p.x}" cy="${p.y}" r="3" fill="${p.d.net>=0?'var(--green)':'var(--red)'}"/>
-      <text x="${p.x}" y="${H+16}" text-anchor="middle" fill="var(--text3)" font-size="9" font-family="Space Grotesk">${p.d.label}</text>`;
-  });
-  svg += `<path d="${pathD}" fill="none" stroke="var(--acc)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`;
-  svg += `</svg>`;
-  wrap.innerHTML = svg;
+  const pts=data.map((d,i)=>({x:padL+(i/(data.length-1||1))*(W-padL-padR),y:midY-(d.net/max)*(H*0.4),d}));
+  const pathD=pts.map((p,i)=>i===0?`M${p.x},${p.y}`:`L${p.x},${p.y}`).join(' ');
+  let svg=`<svg width="100%" viewBox="0 0 ${W} ${H+20}" style="overflow:visible"><line x1="${padL}" y1="${midY}" x2="${W-padR}" y2="${midY}" stroke="var(--border2)" stroke-width="1"/>`;
+  pts.forEach(p=>{svg+=`<circle cx="${p.x}" cy="${p.y}" r="3" fill="${p.d.net>=0?'var(--green)':'var(--red)'}"/><text x="${p.x}" y="${H+16}" text-anchor="middle" fill="var(--text3)" font-size="9" font-family="Space Grotesk">${p.d.label}</text>`;});
+  svg+=`<path d="${pathD}" fill="none" stroke="var(--acc)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  wrap.innerHTML=svg;
 }
 
-// ════════════════════════════════════════════════════════════
-// SETTINGS VIEW
-// ════════════════════════════════════════════════════════════
-async function loadSettingsView() {
-  const apiUrl = await getSetting('gas_api_url','');
-  const wcGoal  = await getSetting('wc_goal','100000');
-  const wcSaved = await getSetting('wc_saved','0');
-  document.getElementById('s-api').value = apiUrl;
-  document.getElementById('s-wc-goal').value = wcGoal;
-  document.getElementById('s-wc-saved').value = wcSaved;
+// ═══ SAVINGS VIEW ══════════════════════════════════════════════
+async function renderSavingsView(){
+  const txs=await dbAll('transactions');
+  const savingsTxs=txs.filter(t=>t.type==='savings'&&t.savingsBucketSnapshot);
+  const wcGoal=parseFloat(await getSetting('wc_goal','100000'));
+  const wcSaved=parseFloat(await getSetting('wc_saved','0'));
+  const byBucket={};
+  savingsTxs.forEach(t=>{
+    const snap=t.savingsBucketSnapshot;
+    if(!byBucket[snap.id])byBucket[snap.id]={id:snap.id,name:snap.name,color:snap.color,total:0,entries:[]};
+    byBucket[snap.id].total+=t.amount||0;
+    byBucket[snap.id].entries.push(t);
+  });
+  buckets.forEach(b=>{if(!byBucket[b.id])byBucket[b.id]={id:b.id,name:b.name,color:b.color,total:0,entries:[]};});
+  const grandTotal=Object.values(byBucket).reduce((a,b)=>a+b.total,0);
+  let html=`<div class="card">
+    <div class="card-title">Total saved (all buckets)</div>
+    <div style="font-size:28px;font-weight:700;color:var(--green);margin-bottom:4px">${php(grandTotal)}</div>
+    <div style="font-size:12px;color:var(--text3)">${savingsTxs.length} savings entries logged</div>
+  </div>`;
+  const warChestBucket=Object.values(byBucket).find(b=>b.name==='WAR CHEST')||null;
+  const warChestTotal=(warChestBucket?warChestBucket.total:0)+wcSaved;
+  const wcPct=Math.min(100,(warChestTotal/wcGoal)*100);
+  html+=`<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+      <div class="card-title" style="margin-bottom:0">WAR CHEST goal</div>
+      <div style="font-size:12px;color:var(--text3)">${php(warChestTotal)} / ${php(wcGoal)}</div>
+    </div>
+    <div style="background:var(--bg4);border-radius:99px;height:8px;overflow:hidden;margin-bottom:6px">
+      <div style="height:100%;width:${wcPct.toFixed(1)}%;background:var(--acc);border-radius:99px;transition:width .4s"></div>
+    </div>
+    <div style="font-size:11px;color:var(--text3)">${wcPct.toFixed(1)}% · ${php(wcGoal-warChestTotal)} remaining</div>
+  </div>`;
+  Object.values(byBucket).sort((a,b)=>b.total-a.total).forEach(bkt=>{
+    const entries=[...bkt.entries].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    html+=`<div class="card"><div style="display:flex;align-items:center;gap:10px;margin-bottom:${entries.length?'10px':'0'}">
+      <div style="width:12px;height:12px;border-radius:50%;background:${bkt.color};flex-shrink:0"></div>
+      <div style="font-size:14px;font-weight:700;flex:1">${bkt.name}</div>
+      <div style="font-size:16px;font-weight:700;color:var(--acc2)">${php(bkt.total)}</div>
+    </div>`;
+    if(entries.length){
+      html+=`<div style="border-top:1px solid var(--border);padding-top:8px">`;
+      entries.slice(0,5).forEach(t=>{
+        html+=`<div style="display:flex;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+          <div style="flex:1"><div style="font-size:13px;font-weight:500">${t.description||bkt.name}</div><div style="font-size:11px;color:var(--text3)">${fmtDate(t.date)}${t.notes?' · '+t.notes:''}</div></div>
+          <div style="font-size:14px;font-weight:700;color:var(--green)">+${php(t.amount)}</div>
+        </div>`;
+      });
+      if(entries.length>5)html+=`<div style="font-size:12px;color:var(--text3);text-align:center;padding-top:8px">${entries.length-5} more entries</div>`;
+      html+=`</div>`;
+    }else{html+=`<div style="font-size:12px;color:var(--text3)">No savings logged yet</div>`;}
+    html+=`</div>`;
+  });
+  document.getElementById('savings-view-content').innerHTML=html;
+}
+
+// ═══ SETTINGS ══════════════════════════════════════════════════
+async function loadSettingsView(){
+  document.getElementById('s-api').value=await getSetting('gas_api_url','');
+  document.getElementById('s-wc-goal').value=await getSetting('wc_goal','100000');
+  document.getElementById('s-wc-saved').value=await getSetting('wc_saved','0');
   renderSettingsBuckets();
 }
-
-function renderSettingsBuckets() {
-  const total = buckets.reduce((a,b)=>a+(b.percent||0),0);
-  document.getElementById('settings-buckets-list').innerHTML = buckets.map(b =>
+function renderSettingsBuckets(){
+  const total=buckets.reduce((a,b)=>a+(b.percent||0),0);
+  document.getElementById('settings-buckets-list').innerHTML=buckets.map(b=>
     `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
       <div style="width:12px;height:12px;border-radius:3px;background:${b.color};flex-shrink:0"></div>
       <div style="flex:1"><div style="font-size:14px;font-weight:600">${b.name}</div><div style="font-size:11px;color:var(--text3)">${b.percent}%</div></div>
     </div>`
   ).join('');
-  document.getElementById('s-pct-total').textContent = `Total: ${total}% ${total===100?'✓':'← must equal 100%'}`;
-  document.getElementById('s-pct-total').style.color = total===100?'var(--green)':'var(--amber)';
+  document.getElementById('s-pct-total').textContent=`Total: ${total}% ${total===100?'✓':'← must equal 100%'}`;
+  document.getElementById('s-pct-total').style.color=total===100?'var(--green)':'var(--amber)';
 }
-
-async function saveAllSettings() {
-  await setSetting('gas_api_url', document.getElementById('s-api').value.trim());
-  await setSetting('wc_goal', document.getElementById('s-wc-goal').value);
-  await setSetting('wc_saved', document.getElementById('s-wc-saved').value);
+async function saveAllSettings(){
+  await setSetting('gas_api_url',document.getElementById('s-api').value.trim());
+  await setSetting('wc_goal',document.getElementById('s-wc-goal').value);
+  await setSetting('wc_saved',document.getElementById('s-wc-saved').value);
   await saveBucketsLocal();
-  const url = await getSetting('gas_api_url','');
-  if (isOnline && url) {
-    gasPost({ action:'saveBuckets', buckets }).catch(()=>{});
-    gasPost({ action:'saveSettings', data: { war_chest_goal: document.getElementById('s-wc-goal').value, war_chest_saved: document.getElementById('s-wc-saved').value }}).catch(()=>{});
+  const url=await getSetting('gas_api_url','');
+  if(isOnline&&url){
+    gasPost({action:'saveBuckets',buckets}).catch(()=>{});
+    gasPost({action:'saveSettings',data:{war_chest_goal:document.getElementById('s-wc-goal').value,war_chest_saved:document.getElementById('s-wc-saved').value}}).catch(()=>{});
   }
-  toast('Settings saved ✓');
-  renderSettingsBuckets();
+  toast('Settings saved ✓');renderSettingsBuckets();
 }
-
-// ════════════════════════════════════════════════════════════
-// BUCKET EDITOR
-// ════════════════════════════════════════════════════════════
-function openBucketEditor() {
-  renderBucketEditorList();
-  openModal('modal-buckets');
-}
-
-function renderBucketEditorList() {
-  document.getElementById('bucket-editor-list').innerHTML = buckets.map((b,i) =>
-    `<div class="bkt-editor-row" id="bkt-row-${i}">
+function openBucketEditor(){renderBucketEditorList();openModal('modal-buckets');}
+function renderBucketEditorList(){
+  document.getElementById('bucket-editor-list').innerHTML=buckets.map((b,i)=>
+    `<div class="bkt-editor-row">
       <input type="color" class="bkt-color-pick" value="${b.color}" onchange="updateBucket(${i},'color',this.value)" style="background:${b.color}">
       <input class="bkt-name-input" type="text" value="${b.name}" placeholder="Bucket name" oninput="updateBucket(${i},'name',this.value)">
       <input class="bkt-pct-input" type="number" value="${b.percent}" min="0" max="100" oninput="updateBucket(${i},'percent',parseFloat(this.value)||0);updateBktTotal()"> %
@@ -1421,240 +1135,42 @@ function renderBucketEditorList() {
   ).join('');
   updateBktTotal();
 }
-
-function updateBucket(i, key, val) {
-  if (buckets[i]) buckets[i][key] = val;
+function updateBucket(i,key,val){if(buckets[i])buckets[i][key]=val;}
+function updateBktTotal(){
+  const total=buckets.reduce((a,b)=>a+(b.percent||0),0);
+  const el=document.getElementById('bkt-pct-total');
+  el.textContent=`Total: ${total}% ${total===100?'✓':'← must equal 100%'}`;
+  el.style.color=total===100?'var(--green)':'var(--amber)';
+}
+function addBucketRow(){buckets.push({id:'bk'+Date.now(),name:'New Bucket',percent:0,color:'#94a3b8'});renderBucketEditorList();}
+function deleteBucketRow(i){if(buckets.length<=1){toast('Need at least 1 bucket.');return;}buckets.splice(i,1);renderBucketEditorList();}
+async function saveBuckets(){
+  const total=buckets.reduce((a,b)=>a+(b.percent||0),0);
+  if(total!==100){toast('Total must be exactly 100%');return;}
+  await saveBucketsLocal();closeModal('modal-buckets');renderSettingsBuckets();toast('Buckets saved ✓');
+  const url=await getSetting('gas_api_url','');
+  if(isOnline&&url)gasPost({action:'saveBuckets',buckets}).catch(()=>{});
 }
 
-function updateBktTotal() {
-  const total = buckets.reduce((a,b)=>a+(b.percent||0),0);
-  const el = document.getElementById('bkt-pct-total');
-  el.textContent = `Total: ${total}% ${total===100?'✓':'← must equal 100%'}`;
-  el.style.color = total===100?'var(--green)':'var(--amber)';
-}
+// ═══ ONLINE/OFFLINE ════════════════════════════════════════════
+window.addEventListener('online',()=>{isOnline=true;setSyncPill('online');syncPending();});
+window.addEventListener('offline',()=>{isOnline=false;setSyncPill('offline');});
+if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{if(e.data.type==='SYNC_NOW')syncPending();});
 
-function addBucketRow() {
-  buckets.push({ id:'bk'+Date.now(), name:'New Bucket', percent:0, color:'#94a3b8' });
-  renderBucketEditorList();
-}
-
-function deleteBucketRow(i) {
-  if (buckets.length <= 1) { toast('Need at least 1 bucket.'); return; }
-  buckets.splice(i,1);
-  renderBucketEditorList();
-}
-
-async function saveBuckets() {
-  const total = buckets.reduce((a,b)=>a+(b.percent||0),0);
-  if (total !== 100) { toast('Total must be exactly 100%'); return; }
-  await saveBucketsLocal();
-  closeModal('modal-buckets');
-  renderSettingsBuckets();
-  toast('Buckets saved ✓');
-  const url = await getSetting('gas_api_url','');
-  if (isOnline && url) gasPost({ action:'saveBuckets', buckets }).catch(()=>{});
-}
-
-// ════════════════════════════════════════════════════════════
-// PULL FROM SHEETS (new device / first load)
-// ════════════════════════════════════════════════════════════
-async function pullFromSheets() {
-  const url = await getSetting('gas_api_url', '');
-  if (!url || !isOnline) return;
-
-  try {
-    setSyncPill('syncing');
-
-    // Pull transactions
-    const res = await gasGet({ action: 'getTransactions' });
-    if (!Array.isArray(res)) { setSyncPill('online'); return; }
-
-    const existing = await dbAll('transactions');
-    const existingIds = new Set(existing.map(t => t.id));
-
-    let pulled = 0;
-    for (const row of res) {
-      const id = row['ID'] || row['id'];
-      if (!id || existingIds.has(id)) continue;
-
-      // Map sheet columns → local object
-      let payslipData = null;
-      const raw = row['PayslipData'] || row['payslipData'];
-      if (raw) {
-        try { payslipData = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch(e) {}
-      }
-
-      const tx = {
-        id,
-        date:        row['Date']        || row['date']        || '',
-        type:        row['Type']        || row['type']        || 'expense',
-        category:    row['Category']    || row['category']    || 'other',
-        description: row['Description'] || row['description'] || '',
-        amount:      parseFloat(row['Amount'] || row['amount']) || 0,
-        applySplit:  (row['ApplySplit'] || row['applySplit']) === 'TRUE' || (row['ApplySplit'] || row['applySplit']) === true,
-        payslipData,
-        notes:       row['Notes']       || row['notes']       || '',
-        synced:      true,
-        createdAt:   row['CreatedAt']   || row['createdAt']   || Date.now()
-      };
-
-      await dbPut('transactions', tx);
-      pulled++;
-    }
-
-    // Pull buckets from sheet too
-    const bktRes = await gasGet({ action: 'getBuckets' });
-    if (Array.isArray(bktRes) && bktRes.length) {
-      buckets = bktRes.map(b => ({
-        id:      b['ID']      || b['id']      || genId('bk'),
-        name:    b['Name']    || b['name']    || 'Bucket',
-        percent: parseFloat(b['Percent'] || b['percent']) || 0,
-        color:   b['Color']   || b['color']   || '#818cf8',
-      }));
-      await saveBucketsLocal();
-    }
-
-    // Pull settings
-    const sRes = await gasGet({ action: 'getSettings' });
-    if (sRes && typeof sRes === 'object') {
-      if (sRes.war_chest_goal)  await setSetting('wc_goal',  sRes.war_chest_goal);
-      if (sRes.war_chest_saved) await setSetting('wc_saved', sRes.war_chest_saved);
-    }
-
-    setSyncPill('online');
-    if (pulled > 0) {
-      toast(`Pulled ${pulled} record(s) from Sheets ✓`);
-      renderTxList();
-    }
-  } catch(e) {
-    setSyncPill(isOnline ? 'online' : 'offline');
-  }
-}
-
-// ════════════════════════════════════════════════════════════
-// SAVINGS VIEW
-// ════════════════════════════════════════════════════════════
-async function renderSavingsView() {
-  const txs = await dbAll('transactions');
-  const savingsTxs = txs.filter(t => t.type === 'savings' && t.savingsBucketSnapshot);
-  const wcGoal  = parseFloat(await getSetting('wc_goal','100000'));
-  const wcSaved = parseFloat(await getSetting('wc_saved','0'));
-
-  // Group savings entries by their snapshot bucket id
-  const byBucket = {};
-  savingsTxs.forEach(t => {
-    const snap = t.savingsBucketSnapshot;
-    if (!byBucket[snap.id]) byBucket[snap.id] = { id: snap.id, name: snap.name, color: snap.color, total: 0, entries: [] };
-    byBucket[snap.id].total += t.amount || 0;
-    byBucket[snap.id].entries.push(t);
-  });
-
-  // Also include current buckets that have no entries yet
-  buckets.forEach(b => {
-    if (!byBucket[b.id]) byBucket[b.id] = { id: b.id, name: b.name, color: b.color, total: 0, entries: [] };
-  });
-
-  const grandTotal = Object.values(byBucket).reduce((a,b) => a+b.total, 0);
-
-  let html = '';
-
-  // Grand total card
-  html += `<div class="card" style="margin-bottom:12px">
-    <div class="card-title">Total saved (all buckets)</div>
-    <div style="font-size:28px;font-weight:700;color:var(--green);margin-bottom:4px">${php(grandTotal)}</div>
-    <div style="font-size:12px;color:var(--text3)">${savingsTxs.length} savings entries logged</div>
-  </div>`;
-
-  // WAR CHEST progress if goal set
-  const warChestBucket = Object.values(byBucket).find(b => b.name === 'WAR CHEST') || null;
-  const warChestTotal = (warChestBucket ? warChestBucket.total : 0) + wcSaved;
-  const wcPct = Math.min(100, (warChestTotal / wcGoal) * 100);
-  html += `<div class="card" style="margin-bottom:12px">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
-      <div class="card-title" style="margin-bottom:0">WAR CHEST goal</div>
-      <div style="font-size:12px;color:var(--text3)">${php(warChestTotal)} / ${php(wcGoal)}</div>
-    </div>
-    <div style="background:var(--bg4);border-radius:99px;height:8px;overflow:hidden;margin-bottom:6px">
-      <div style="height:100%;width:${wcPct.toFixed(1)}%;background:var(--acc);border-radius:99px;transition:width .4s"></div>
-    </div>
-    <div style="font-size:11px;color:var(--text3)">${wcPct.toFixed(1)}% · ${php(wcGoal - warChestTotal)} remaining</div>
-  </div>`;
-
-  // Per-bucket cards
-  const sortedBuckets = Object.values(byBucket).sort((a,b) => b.total - a.total);
-  sortedBuckets.forEach(bkt => {
-    const sortedEntries = [...bkt.entries].sort((a,b) => new Date(b.date) - new Date(a.date));
-    html += `<div class="card" style="margin-bottom:10px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-        <div style="width:12px;height:12px;border-radius:50%;background:${bkt.color};flex-shrink:0"></div>
-        <div style="font-size:14px;font-weight:700;flex:1">${bkt.name}</div>
-        <div style="font-size:16px;font-weight:700;color:var(--acc2)">${php(bkt.total)}</div>
-      </div>`;
-    if (sortedEntries.length) {
-      html += `<div style="border-top:1px solid var(--border);padding-top:8px">`;
-      sortedEntries.slice(0,5).forEach(t => {
-        html += `<div style="display:flex;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
-          <div style="flex:1">
-            <div style="font-size:13px;font-weight:500">${t.description||bkt.name}</div>
-            <div style="font-size:11px;color:var(--text3)">${fmtDate(t.date)}${t.notes?' · '+t.notes:''}</div>
-          </div>
-          <div style="font-size:14px;font-weight:700;color:var(--green)">+${php(t.amount)}</div>
-        </div>`;
-      });
-      if (sortedEntries.length > 5) {
-        html += `<div style="font-size:12px;color:var(--text3);text-align:center;padding-top:8px">${sortedEntries.length - 5} more entries</div>`;
-      }
-      html += `</div>`;
-    } else {
-      html += `<div style="font-size:12px;color:var(--text3)">No savings logged yet</div>`;
-    }
-    html += `</div>`;
-  });
-
-  document.getElementById('savings-view-content').innerHTML = html;
-}
-
-// ════════════════════════════════════════════════════════════
-// ONLINE/OFFLINE
-// ════════════════════════════════════════════════════════════
-window.addEventListener('online', () => {
-  isOnline = true;
-  setSyncPill('online');
-  syncPending();
-});
-window.addEventListener('offline', () => {
-  isOnline = false;
-  setSyncPill('offline');
-});
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.addEventListener('message', e => { if(e.data.type==='SYNC_NOW') syncPending(); });
-}
-
-// ════════════════════════════════════════════════════════════
-// INIT
-// ════════════════════════════════════════════════════════════
-async function init() {
+// ═══ INIT ══════════════════════════════════════════════════════
+async function init(){
   await initDB();
   await loadBuckets();
-  setSyncPill(isOnline ? 'online' : 'offline');
-  document.getElementById('msel-label').textContent = monthLabel(currentMonth);
-
-  // Show local data first so the app feels instant
+  setSyncPill(isOnline?'online':'offline');
+  document.getElementById('msel-label').textContent=monthLabel(currentMonth);
   renderTxList();
-
-  // Then pull from Sheets in background (new device / catch-up)
-  if (isOnline) {
-    await pullFromSheets();
-    await syncPending(); // push any local unsynced entries too
-  }
-
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
-  if ('serviceWorker' in navigator && 'SyncManager' in window) {
-    const reg = await navigator.serviceWorker.ready;
+  if(isOnline){await pullFromSheets();await syncPending();}
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+  if('serviceWorker' in navigator&&'SyncManager' in window){
+    const reg=await navigator.serviceWorker.ready;
     reg.sync.register('ss-sync').catch(()=>{});
   }
 }
-
 init();
 </script>
 </body>

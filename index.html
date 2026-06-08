@@ -849,9 +849,12 @@ async function viewTx(id) {
   }
 
   if (t.applySplit && t.amount > 0) {
-    body += `<div class="card"><div class="card-title">Savings split</div><div class="split-preview">`;
+    const isDeduction = t.type === 'expense';
+    const splitSign = isDeduction ? '−' : '+';
+    const splitColor = isDeduction ? 'color:var(--red)' : '';
+    body += `<div class="card"><div class="card-title">${isDeduction ? 'Deducted from buckets' : 'Savings split'}</div><div class="split-preview">`;
     buckets.forEach(b => {
-      body += `<div class="split-item"><div class="split-dot" style="background:${b.color}"></div><div class="split-name" style="color:${b.color}">${b.name}</div><div class="split-desc">${b.percent}%</div><div class="split-amt">${php(t.amount*b.percent/100)}</div></div>`;
+      body += `<div class="split-item"><div class="split-dot" style="background:${b.color}"></div><div class="split-name" style="color:${b.color}">${b.name}</div><div class="split-desc">${b.percent}%</div><div class="split-amt" style="${splitColor}">${splitSign}${php(t.amount*b.percent/100)}</div></div>`;
     });
     body += `</div></div>`;
   }
@@ -936,7 +939,7 @@ async function updateTx(id) {
   const date = document.getElementById('tx-date').value;
   const desc = document.getElementById('tx-desc').value;
   const notes = document.getElementById('tx-notes').value;
-  const applySplit = currentType!=='expense' && document.getElementById('tx-apply-split').checked;
+  const applySplit = document.getElementById('tx-apply-split').checked;
 
   if (!amount || !date) { toast('Fill in amount and date.'); return; }
 
@@ -1016,19 +1019,17 @@ function setType(type) {
   document.getElementById('payslip-section').style.display = type==='payslip'?'block':'none';
   const splitRow = document.getElementById('split-toggle-row');
   const splitSub = document.getElementById('split-toggle-sub');
+  splitRow.style.display='block';
   if (type==='expense') {
-    splitRow.style.display='none';
-    document.getElementById('split-preview-wrap').style.display='none';
+    splitSub.textContent = 'Deduct this expense from a savings bucket?';
+    document.getElementById('tx-apply-split').checked = false;
+  } else if (type==='payslip') {
+    splitSub.textContent = 'Show savings split for this payslip';
+    document.getElementById('tx-apply-split').checked = true;
   } else {
-    splitRow.style.display='block';
-    if (type==='payslip') {
-      splitSub.textContent = 'Show savings split for this payslip';
-      document.getElementById('tx-apply-split').checked = true;
-    } else {
-      splitSub.textContent = 'Include in savings bucket calculation?';
-    }
-    onSplitToggle();
+    splitSub.textContent = 'Include in savings bucket calculation?';
   }
+  onSplitToggle();
   renderCatGrid(type==='expense'?EXP_CATS:INC_CATS);
   if (type==='payslip') selectedCat='salary';
   else selectedCat = type==='expense'?'food':'salary';
@@ -1061,16 +1062,20 @@ function onSplitToggle() {
   const wrap = document.getElementById('split-preview-wrap');
   if (apply && amt > 0) {
     wrap.style.display = 'block';
-    renderSplitPreview(amt);
+    renderSplitPreview(amt, currentType === 'expense');
   } else {
     wrap.style.display = 'none';
   }
 }
 
-function renderSplitPreview(amt) {
+function renderSplitPreview(amt, isDeduction=false) {
+  const sign = isDeduction ? '−' : '+';
+  const amtColor = isDeduction ? 'color:var(--red)' : '';
   document.getElementById('split-preview-inner').innerHTML = buckets.map(b =>
-    `<div class="split-item"><div class="split-dot" style="background:${b.color}"></div><div class="split-name" style="color:${b.color}">${b.name}</div><div class="split-desc">${b.percent}%</div><div class="split-amt">${php(amt*b.percent/100)}</div></div>`
+    `<div class="split-item"><div class="split-dot" style="background:${b.color}"></div><div class="split-name" style="color:${b.color}">${b.name}</div><div class="split-desc">${b.percent}%</div><div class="split-amt" style="${amtColor}">${sign}${php(amt*b.percent/100)}</div></div>`
   ).join('');
+  const title = document.querySelector('#split-preview-wrap .card-title');
+  if (title) title.textContent = isDeduction ? 'Deducted from buckets' : 'Savings split';
 }
 
 function calcPayslipNet() {
@@ -1097,7 +1102,7 @@ async function submitTx() {
   const date = document.getElementById('tx-date').value;
   const desc = document.getElementById('tx-desc').value;
   const notes = document.getElementById('tx-notes').value;
-  const applySplit = currentType!=='expense' && document.getElementById('tx-apply-split').checked;
+const applySplit = document.getElementById('tx-apply-split').checked;
 
   if (!amount || !date) { toast('Fill in amount and date.'); return; }
 

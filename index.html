@@ -1366,10 +1366,93 @@ async function saveBuckets() {
 }
 
 // ════════════════════════════════════════════════════════════
+// PULL FROM SHEETS (new device / first load)
+// ════════════════════════════════════════════════════════════
+async function pullFromSheets() {
+  const url = await getSetting('gas_api_url', '');
+  if (!url || !isOnline) return;
+
+  try {
+    setSyncPill('syncing');
+
+    // Pull transactions
+    const res = await gasGet({ action: 'getTransactions' });
+    if (!Array.isArray(res)) { setSyncPill('online'); return; }
+
+    const existing = await dbAll('transactions');
+    const existingIds = new Set(existing.map(t => t.id));
+
+    let pulled = 0;
+    for (const row of res) {
+      const id = row['ID'] || row['id'];
+      if (!id || existingIds.has(id)) continue;
+
+      // Map sheet columns → local object
+      let payslipData = null;
+      const raw = row['PayslipData'] || row['payslipData'];
+      if (raw) {
+        try { payslipData = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch(e) {}
+      }
+
+      const tx = {
+        id,
+        date:        row['Date']        || row['date']        || '',
+        type:        row['Type']        || row['type']        || 'expense',
+        category:    row['Category']    || row['category']    || 'other',
+        description: row['Description'] || row['description'] || '',
+        amount:      parseFloat(row['Amount'] || row['amount']) || 0,
+        applySplit:  (row['ApplySplit'] || row['applySplit']) === 'TRUE' || (row['ApplySplit'] || row['applySplit']) === true,
+        payslipData,
+        notes:       row['Notes']       || row['notes']       || '',
+        synced:      true,
+        createdAt:   row['CreatedAt']   || row['createdAt']   || Date.now()
+      };
+
+      await dbPut('transactions', tx);
+      pulled++;
+    }
+
+    // Pull buckets from sheet too
+    const bktRes = await gasGet({ action: 'getBuckets' });
+    if (Array.isArray(bktRes) && bktRes.length) {
+      buckets = bktRes.map(b => ({
+        id:      b['ID']      || b['id']      || genId('bk'),
+        name:    b['Name']    || b['name']    || 'Bucket',
+        percent: parseFloat(b['Percent'] || b['percent']) || 0,
+        color:   b['Color']   || b['color']   || '#818cf8',
+      }));
+      await saveBucketsLocal();
+    }
+
+    // Pull settings
+    const sRes = await gasGet({ action: 'getSettings' });
+    if (sRes && typeof sRes === 'object') {
+      if (sRes.war_chest_goal)  await setSetting('wc_goal',  sRes.war_chest_goal);
+      if (sRes.war_chest_saved) await setSetting('wc_saved', sRes.war_chest_saved);
+    }
+
+    setSyncPill('online');
+    if (pulled > 0) {
+      toast(`Pulled ${pulled} record(s) from Sheets ✓`);
+      renderTxList();
+    }
+  } catch(e) {
+    setSyncPill(isOnline ? 'online' : 'offline');
+  }
+}
+
+// ════════════════════════════════════════════════════════════
 // ONLINE/OFFLINE
 // ════════════════════════════════════════════════════════════
-window.addEventListener('online', () => { isOnline=true; setSyncPill('online'); syncPending(); });
-window.addEventListener('offline', () => { isOnline=false; setSyncPill('offline'); });
+window.addEventListener('online', () => {
+  isOnline = true;
+  setSyncPill('online');
+  syncPending();
+});
+window.addEventListener('offline', () => {
+  isOnline = false;
+  setSyncPill('offline');
+});
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.addEventListener('message', e => { if(e.data.type==='SYNC_NOW') syncPending(); });
 }
@@ -1380,15 +1463,23 @@ if ('serviceWorker' in navigator) {
 async function init() {
   await initDB();
   await loadBuckets();
-  setSyncPill(isOnline?'online':'offline');
+  setSyncPill(isOnline ? 'online' : 'offline');
   document.getElementById('msel-label').textContent = monthLabel(currentMonth);
+
+  // Show local data first so the app feels instant
   renderTxList();
+
+  // Then pull from Sheets in background (new device / catch-up)
+  if (isOnline) {
+    await pullFromSheets();
+    await syncPending(); // push any local unsynced entries too
+  }
+
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
   if ('serviceWorker' in navigator && 'SyncManager' in window) {
     const reg = await navigator.serviceWorker.ready;
     reg.sync.register('ss-sync').catch(()=>{});
   }
-  if (isOnline) syncPending();
 }
 
 init();

@@ -1,7 +1,7 @@
 {
   "name": "SpendSense",
   "short_name": "SpendSense",
-  "description": "Personal finance tracker ni kmendoza",
+  "description": "Personal finance tracker for baekwun",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f0f18",

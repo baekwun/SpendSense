@@ -697,13 +697,20 @@ async function getSetting(key,def=''){const r=await dbGet('settings',key);return
 async function setSetting(key,value){await dbPut('settings',{key,value});}
 
 async function loadBuckets(){
-  const s=await dbAll('buckets');
-  if(s.length)buckets=s;
+  const s = await dbAll('buckets');
+  const flag = await dbGet('settings', 'buckets_saved');
+  if (s.length) buckets = s;
+  // If flag set but store empty = user intentionally cleared. Don't fall back to defaults.
 }
 async function saveBucketsLocal(){
-  // Use clear() first — atomic wipe then re-insert prevents stale rows on hard refresh
-  await dbClear('buckets');
-  for(const b of buckets)await dbPut('buckets',b);
+  // Clear first so deleted buckets don't survive
+  await new Promise((r,e) => {
+    const t = db.transaction('buckets','readwrite').objectStore('buckets').clear();
+    t.onsuccess=r; t.onerror=e;
+  });
+  for (const b of buckets) await dbPut('buckets', b);
+  // Mark as intentionally saved so loadBuckets knows not to fall back
+  await setSetting('buckets_saved', true);
 }
 
 async function loadAccounts(){
@@ -1508,7 +1515,16 @@ async function renderSavingsView(){
   const suggestedByBucket={};
   buckets.forEach(b=>{suggestedByBucket[b.id]=0;});
   splitSources.forEach(t=>{buckets.forEach(b=>{suggestedByBucket[b.id]=(suggestedByBucket[b.id]||0)+parseFloat((t.amount*b.percent/100).toFixed(2));});});
-  const totalSuggested=buckets.reduce((a,b)=>a+(suggestedByBucket[b.id]||0),0);
+
+// Subtract expense splits — these reduce available savings per bucket
+const expenseSplitSources=txs.filter(t=>t.applySplit&&t.amount>0&&t.type==='expense');
+expenseSplitSources.forEach(t=>{
+  buckets.forEach(b=>{
+    suggestedByBucket[b.id]=(suggestedByBucket[b.id]||0)-parseFloat((t.amount*b.percent/100).toFixed(2));
+  });
+});
+
+const totalSuggested=buckets.reduce((a,b)=>a+(suggestedByBucket[b.id]||0),0);
   let html='';
   if(splitSources.length){
     html+=`<div class="card">
@@ -1519,7 +1535,7 @@ async function renderSavingsView(){
       <div style="font-size:11px;color:var(--text3);margin-bottom:12px">Cumulative from all income/payslip entries with split enabled.</div>`;
     html+=`<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:4px 12px;align-items:center;margin-bottom:8px">
       <div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase">Bucket</div>
-      <div style="font-size:10px;color:var(--text3);font-weight:700;text-align:right">Target</div>
+      <div style="font-size:10px;color:var(--text3);font-weight:700;text-align:right">Net Target</div>
       <div style="font-size:10px;color:var(--acc2);font-weight:700;text-align:right">Saved</div>
       <div style="font-size:10px;color:var(--text3);font-weight:700;text-align:right">Gap</div>`;
     buckets.forEach(b=>{

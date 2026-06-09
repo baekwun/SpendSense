@@ -241,7 +241,7 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
   .nbtn{flex:none;flex-direction:row;justify-content:flex-start;gap:12px;padding:11px 20px;border-radius:10px;font-size:13px;text-transform:none;letter-spacing:0;margin:0 10px;width:auto}
   .nbtn svg{width:18px;height:18px}
   .nbtn.active{background:rgba(129,140,248,.12)}
-  .sidebar-logo{padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:8px;font-size:20px;font-weight:700;letter-spacing:-.02em;color:var(--text)}
+  .sidebar-logo{padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:8px;font-size:20px;font-weight:700;letter-spacing:-.02em;color:var(--text);display:none}
   .sidebar-logo em{color:var(--acc);font-style:normal}
   .sidebar-logo span{display:block;font-size:11px;color:var(--text3);font-weight:400;margin-top:2px;letter-spacing:.02em}
   .sidebar-bottom{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border)}
@@ -275,6 +275,10 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
   .modal-handle{display:none}
   .toast{bottom:40px}
   .view>.inner{padding-left:32px;padding-right:32px;max-width:none}
+}
+@media(max-width:899px){
+  .sidebar-logo{display:none}
+  .sidebar-bottom{display:none}
 }
 </style>
 </head>
@@ -662,7 +666,7 @@ let buckets=[
 
 let db, isOnline=navigator.onLine;
 let currentMonth=new Date(), currentType='expense', selectedCat='c_food';
-let graphPeriod='this', selectedSavingsBucket=null;
+let graphPeriod='this', selectedSavingsBucket=null, currentView='home';
 // account/cat editor state
 let editingAccountId=null, selectedAccType='Cash', selectedAccEmoji='💵';
 let editingCatType='expense'; // which type we're editing in cat editor
@@ -848,10 +852,7 @@ function goTo(view,btn){
   if(view==='savings')renderSavingsView();
   if(view==='accounts')renderAccountsView();
   if(view==='settings')loadSettingsView();
-  if(view==='accounts'){
-  renderAccountsView();
-  document.getElementById('fab').style.display='flex';  // show FAB on accounts too
-}
+  
 }
 function changeMonth(dir){
   currentMonth=new Date(currentMonth.getFullYear(),currentMonth.getMonth()+dir,1);
@@ -1248,7 +1249,7 @@ async function renderAccountsView(){
     });
     html+=`</div>`;
   }else{
-    <div class="empty-sub">Add an account to track your balances.</div>
+    html+=`<div class="empty"><div class="empty-icon">💳</div><div class="empty-title">No accounts yet</div><div class="empty-sub">Tap + to add an account and track your balances.</div></div>`;
   }
   document.getElementById('accounts-content').innerHTML=html;
   // render category lists

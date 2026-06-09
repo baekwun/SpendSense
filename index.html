@@ -1679,7 +1679,14 @@ async function saveBuckets(){
   await saveBucketsLocal();
   closeModal('modal-buckets');renderSettingsBuckets();toast('Buckets saved ✓');
   const url=await sbUrl(),key=await sbKey();
-  if(isOnline&&url&&key)sbPost('buckets',buckets.map(b=>({id:b.id,name:b.name,percent:b.percent,color:b.color,active:true}))).catch(()=>{});
+  if(isOnline&&url&&key){
+    // Delete all existing bucket rows first, then reinsert current ones
+    // This ensures removed buckets don't survive in Supabase
+    try{
+      await fetch(`${url}/rest/v1/buckets?id=neq.NONE`,{method:'DELETE',headers:{'apikey':key,'Authorization':'Bearer '+key}});
+      await sbPost('buckets',buckets.map(b=>({id:b.id,name:b.name,percent:b.percent,color:b.color,active:true})));
+    }catch(e){}
+  }
 }
 
 // ═══ ONLINE/OFFLINE ══════════════════════════════════════════

@@ -847,6 +847,8 @@ function goTo(view,btn){
   document.getElementById('view-'+view).classList.add('active');
   btn.classList.add('active');
   document.getElementById('fab').style.display=(view==='home'||view==='accounts')?'flex':'none';
+  document.getElementById('fab').style.display=(view==='home'||view==='accounts')?'flex':'none';
+  currentView=view;
   if(view==='home')renderTxList();
   if(view==='graph')renderGraphs();
   if(view==='savings')renderSavingsView();

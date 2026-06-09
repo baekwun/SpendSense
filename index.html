@@ -42,7 +42,7 @@ input,select,button,textarea{font-family:var(--sans)}
 .pill.syncing{background:rgba(129,140,248,.12);color:var(--acc)}
 /* nav */
 .nav{position:fixed;bottom:0;left:0;right:0;z-index:20;background:var(--bg2);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom,0px)}
-.nbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;border:none;background:transparent;color:var(--text3);font-size:10px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;transition:color .2s}
+.nbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;border:none;background:transparent;color:var(--text3);font-size:9px;overflow:hidden;font-weight:600;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;transition:color .2s}
 .nbtn svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .nbtn.active{color:var(--acc)}.nbtn.active svg{stroke:var(--acc)}
 /* fab */
@@ -293,9 +293,9 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
   <button class="nbtn" onclick="goTo('savings',this)">
     <svg viewBox="0 0 24 24"><ellipse cx="12" cy="8" rx="9" ry="4"/><path d="M3 8v8c0 2.21 4.03 4 9 4s9-1.79 9-4V8"/><path d="M3 12c0 2.21 4.03 4 9 4s9-1.79 9-4"/></svg>Savings
   </button>
-  <button class="nbtn" onclick="goTo('accounts',this)">
+<button class="nbtn" onclick="goTo('accounts',this)" id="nav-accounts">
     <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Accounts
-  </button>
+</button>
   <button class="nbtn" onclick="goTo('settings',this)">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
   </button>
@@ -434,7 +434,7 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
 </div><!-- #app -->
 
 <!-- FAB -->
-<button class="fab" id="fab" onclick="showAddTx()">
+<button class="fab" id="fab" onclick="currentView==='accounts'?openAddAccount():showAddTx()">
   <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
 </button>
 
@@ -621,11 +621,12 @@ const DB_NAME='spendsense_db', DB_VER=2;
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const MONTHS_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
-const ACCOUNT_TYPES=['Cash','Bank','Card','Debit Card','Savings','E-Wallet','Investments','Loan','Others'];
+const ACCOUNT_TYPES=['Cash','Accounts','Card','Debit Card','Savings','Top-Up/Prepaid','Investments','Overdrafts','Loan','Insurance','Others'];
 const ACCOUNT_EMOJIS=['💵','🏦','💳','👝','🪙','📱','📈','🏠','🛵','💻','🎮','🛒','✈️','🏋️','🎯'];
 const ACCOUNT_TYPE_COLORS={
-  'Cash':'#4ade80','Bank':'#60a5fa','Card':'#f87171','Debit Card':'#fb923c',
-  'Savings':'#818cf8','E-Wallet':'#f472b6','Investments':'#34d399','Loan':'#fbbf24','Others':'#94a3b8'
+  'Cash':'#4ade80','Accounts':'#60a5fa','Card':'#f87171','Debit Card':'#fb923c',
+  'Savings':'#818cf8','Top-Up/Prepaid':'#f472b6','Investments':'#34d399',
+  'Overdrafts':'#fbbf24','Loan':'#f87171','Insurance':'#a78bfa','Others':'#94a3b8'
 };
 
 // Default categories — mutable, loaded from IDB
@@ -841,12 +842,16 @@ function goTo(view,btn){
   document.querySelectorAll('.nbtn').forEach(b=>b.classList.remove('active'));
   document.getElementById('view-'+view).classList.add('active');
   btn.classList.add('active');
-  document.getElementById('fab').style.display=view==='home'?'flex':'none';
+  document.getElementById('fab').style.display=(view==='home'||view==='accounts')?'flex':'none';
   if(view==='home')renderTxList();
   if(view==='graph')renderGraphs();
   if(view==='savings')renderSavingsView();
   if(view==='accounts')renderAccountsView();
   if(view==='settings')loadSettingsView();
+  if(view==='accounts'){
+  renderAccountsView();
+  document.getElementById('fab').style.display='flex';  // show FAB on accounts too
+}
 }
 function changeMonth(dir){
   currentMonth=new Date(currentMonth.getFullYear(),currentMonth.getMonth()+dir,1);
@@ -1243,7 +1248,7 @@ async function renderAccountsView(){
     });
     html+=`</div>`;
   }else{
-    html+=`<div class="empty"><div class="empty-icon">🏦</div><div class="empty-title">No accounts yet</div><div class="empty-sub">Add a bank account, cash wallet, or e-wallet to track balances.</div></div>`;
+    <div class="empty-sub">Add an account to track your balances.</div>
   }
   document.getElementById('accounts-content').innerHTML=html;
   // render category lists

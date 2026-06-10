@@ -808,13 +808,15 @@ async function syncPending(){
       apply_split:t.applySplit||false,
       payslip_data:t.payslipData?JSON.stringify(t.payslipData):null,
       savings_bucket_snapshot:t.savingsBucketSnapshot?JSON.stringify(t.savingsBucketSnapshot):null,
+      savings_withdraw:t.savingsWithdraw||false,
+      transfer_link:t.transferLink||null,
       notes:t.notes||'',created_at:t.createdAt||new Date().toISOString()
     }));
     await sbPost('transactions',rows);
     for(const t of pending)await dbPut('transactions',{...t,synced:true});
     toast(`Synced ${pending.length} record(s) ✓`);
     setSyncPill('online');
-  }catch(e){setSyncPill(isOnline?'online':'offline');}
+  }catch(e){console.error('Sync error:',e);setSyncPill(isOnline?'online':'offline');toast('Sync failed: '+(e.message||'unknown error'));}
 }
 
 async function pullFromSupabase(){

@@ -14,10 +14,18 @@ create table if not exists transactions (
   apply_split   boolean default false,
   payslip_data  text,
   savings_bucket_snapshot text,
+  savings_withdraw boolean default false,
+  transfer_link text,
+  account_id    text,
   notes         text,
   created_at    timestamptz default now(),
   updated_at    timestamptz default now()
 );
+
+-- Run this if your table already exists (adds missing columns):
+alter table transactions add column if not exists account_id text;
+alter table transactions add column if not exists savings_withdraw boolean default false;
+alter table transactions add column if not exists transfer_link text;
 
 -- 2. BUCKETS table
 create table if not exists buckets (

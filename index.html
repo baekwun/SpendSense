@@ -822,7 +822,7 @@ async function pullFromSupabase(){
   if(!url||!key||!isOnline)return;
   try{
     setSyncPill('syncing');
-    const rows=await sbGet('transactions',{'order':'date.desc','limit':1000});
+    const rows=await sbGet('transactions',{'order':'created_at.desc','limit':1000});
     if(!Array.isArray(rows)){setSyncPill('online');return;}
     const existing=await dbAll('transactions');
     const existingIds=new Set(existing.map(t=>t.id));
@@ -838,7 +838,7 @@ async function pullFromSupabase(){
         description:row.description||'',amount:parseFloat(row.amount)||0,
         accountId:row.account_id||null,
         applySplit:row.apply_split===true||row.apply_split==='true',
-        payslipData,savingsBucketSnapshot,notes:row.notes||'',synced:true,createdAt:row.created_at||Date.now()
+        payslipData,savingsBucketSnapshot,notes:row.notes||'',synced:true,createdAt:row.created_at||new Date().toISOString()
       });
       pulled++;
     }
@@ -1504,7 +1504,7 @@ async function renderGraphs(){
   renderDonut(filtered.filter(t=>t.type==='expense'),'expense-donut');
   renderDonut(filtered.filter(t=>t.type!=='expense'&&t.type!=='savings'),'income-donut');
   renderNetFlow(txs);
-  const lastIncome=txs.filter(t=>t.type!=='expense'&&t.type!=='savings'&&t.applySplit).sort((a,b)=>b.createdAt-a.createdAt)[0];
+  const lastIncome=txs.filter(t=>t.type!=='expense'&&t.type!=='savings'&&t.applySplit).sort((a,b)=>new Date(b.createdAt).getTime()-new Date(a.createdAt).getTime())[0];
   if(lastIncome){
     document.getElementById('graph-buckets').innerHTML=buckets.map(b=>
       `<div style="display:flex;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)">
@@ -1788,7 +1788,7 @@ async function forceResync(){
       await sbPost('transactions',rows);
       for(const t of pending)await dbPut('transactions',{...t,synced:true});
     }
-    const sbRows=await sbGet('transactions',{'order':'date.desc','limit':1000});
+    const sbRows=await sbGet('transactions',{'order':'created_at.desc','limit':1000});
     if(!Array.isArray(sbRows)){toast('Pull failed.');setSyncPill('online');return;}
     await dbClear('transactions');
     for(const row of sbRows){
@@ -1802,7 +1802,7 @@ async function forceResync(){
         accountId:row.account_id||null,
         applySplit:row.apply_split===true||row.apply_split==='true',
         payslipData,savingsBucketSnapshot,notes:row.notes||'',synced:true,
-        createdAt:row.created_at||Date.now()
+        createdAt:row.created_at||new Date().toISOString()
       });
     }
     try{

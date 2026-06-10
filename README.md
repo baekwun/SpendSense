@@ -1,26 +1,29 @@
 # SpendSense 💸
-A personal finance PWA for tracking income, expenses, payslips, and savings goals — built to work offline-first and sync to Supabase.
+A personal finance PWA for tracking income, expenses, payslips, savings goals, and account balances — built offline-first, syncs to Supabase.
 
 ---
 
 ## What it does
-- **Ledger** — log income and expenses by category, grouped by day. Tap any entry to see details.
-- **Payslip tracker** — enter your payslip (basic pay, deductions, absences, OT, etc.) and get your net pay calculated automatically including all standard deductions.
-- **Savings bucket split** — any income can be automatically split across your named savings buckets by percentage, so you always know exactly how much goes where.
+
+- **Ledger** — log income and expenses by category, grouped by day. Entries within each day are sorted by time logged (latest at the top). Tap any entry to see details.
+- **Payslip tracker** — enter your payslip (basic pay, deductions, absences, OT, etc.) and get your net pay calculated automatically. Supports savings split and account assignment.
+- **Savings buckets** — any income or payslip can be split across named savings buckets by percentage. You can also add to or **withdraw from** a bucket directly via the Bucket entry type.
+- **Transfers** — move money between accounts with a single entry. Recorded as Transfer Out on the source and Transfer In on the destination — neutral to your income/expense totals.
+- **Accounts** — track balances across cash, bank, e-wallet, cards, and more. Balances auto-update when transactions are linked to an account.
 - **Graphs** — donut charts for expense breakdown and income sources, bar chart for income vs expense per month, and a net flow line across 6 months.
-- **Offline-first** — all data is stored locally on your device via IndexedDB. Entries made without internet are tagged and auto-sync to Supabase when you're back online.
-- **PWA** — installable on Android and iOS. Opens fullscreen with no browser UI, feels like a native app.
+- **Offline-first** — all data stored locally via IndexedDB. Entries made without internet are tagged and auto-synced to Supabase when you're back online.
+- **PWA** — installable on Android and iOS. Opens fullscreen with no browser UI.
 
 ---
 
 ## Stack
+
 | Layer | Tech |
 |---|---|
 | Frontend | Vanilla HTML/CSS/JS |
 | Local storage | IndexedDB |
 | Offline | Service Worker |
-| Backend sync | Supabase |
-| Database | Supabase (PostgreSQL) |
+| Backend sync | Supabase (PostgreSQL REST API) |
 | Hosting | GitHub Pages |
 
 No frameworks. No dependencies. No npm. Just files.
@@ -29,24 +32,33 @@ No frameworks. No dependencies. No npm. Just files.
 
 ## Features
 
-### Income entry
-- Categories: Salary, Incentive, Extra Income, Allotment, Freelance, Gift
-- Toggle **"Apply savings split?"** to include or exclude from bucket calculation
-- Excluded income still logs normally and shows in graphs — just no bucket breakdown
+### Entry types
+- **− Expense** — deduct from balance, optionally deduct from savings buckets (apply split)
+- **+ Income** — add to balance, optionally split across savings buckets
+- **📄 Payslip** — structured payslip entry with ADD/DED/LESS/ADJ sections; net auto-computed; supports savings split and account assignment
+- **🪣 Bucket** — add to or withdraw from a specific savings bucket; withdraw toggle subtracts from the bucket balance
+- **⇄ Transfer** — move an amount between two accounts; neutral to income/expense summary
 
-### Payslip entry
-Fields mirror a standard Philippine payslip:
-- **ADD:** OT, Holidays
-- **DED:** SSS, HDMF (Pag-IBIG), PhilHealth, MISC, Loans
+### Payslip fields
+- **ADD:** OT, Holidays, SLRY/HLDY
+- **DED:** SSS, HDMF (Pag-IBIG), PhilHealth, Miscellaneous, Loans
 - **LESS:** Tardiness, Undertime, Absences
-- **ADJ:** SLRY/HLDY
 - NET computed live as you type
 
 ### Savings buckets
-- Fully editable — change name, percentage, and color per bucket
-- Add or delete buckets freely
-- Total must equal exactly 100% to save
-- Split preview shown before saving any income entry
+- Fully editable — name, percentage, color per bucket
+- Add or delete buckets freely; total must equal 100%
+- Split preview shown before saving any income/payslip entry
+- Withdraw toggle on Bucket entries subtracts from the bucket balance
+
+### Transfers
+- Select **From Account** and **To Account**
+- Creates two linked entries: Transfer Out (debit) and Transfer In (credit)
+- Excluded from income/expense/balance totals — purely an account movement
+
+### Ledger sorting
+- Entries grouped by date, days sorted newest first
+- Within each day, entries sorted by time of entry (latest first) using ISO timestamp
 
 ### Offline sync
 - Entries saved offline show an amber dot indicator
@@ -67,56 +79,35 @@ Upload these 3 files to your GitHub repo:
 Go to **Settings → Pages → Deploy from branch → main / root** and save.
 
 Your app will be live at:
-
 ```
-https://YOUR_USERNAME.github.io/spendsense
+https://YOUR_USERNAME.github.io/SpendSense
 ```
 
-### 3. Set up Supabase
-1. Go to [supabase.com](https://supabase.com) and create a free account
-2. Create a new project — name it anything (e.g. `spendsense`)
-3. Once the project is ready, go to **SQL Editor → New Query**
-4. Paste the contents of `supabase_setup.sql` and click **Run**
-   - This creates the `transactions`, `buckets`, and `settings` tables
-   - Seeds your default buckets and settings
-   - Enables Row Level Security with public anon access
-5. Go to **Project Settings → API** and copy:
-   - **Project URL** (looks like `https://xxxxxxxxxxxx.supabase.co`)
-   - **Anon public key** (the long `eyJ...` string under *Project API keys*)
+### 3. Set up Supabase (required for sync)
+
+1. Go to [supabase.com](https://supabase.com) → New Project (free tier)
+2. In **SQL Editor**, run the contents of `supabase_setup.sql`
+3. Go to **Settings → API Keys** → copy the **Publishable key** and the **Project URL**
 
 ### 4. Configure the app
+
 1. Open SpendSense in your browser
 2. Go to **Settings**
-3. Paste your **Supabase Project URL** and **Supabase Anon Key** into the respective fields
-4. Save — done, you never need to do this again
+3. Paste your **Supabase Project URL** and **Publishable Key**
+4. Tap **Save Settings** — done
 
-> **Note:** The anon key is safe to use client-side. It's scoped to the Row Level Security policies defined in the SQL file — it cannot access anything outside your project tables.
-
-### 5. Install as PWA (Android / Brave)
-1. Open the GitHub Pages URL in Brave or Chrome
+### 5. Install as PWA (Android / Brave / Chrome)
+1. Open the GitHub Pages URL
 2. Tap **⋮ menu → Add to Home Screen**
 3. Opens fullscreen from your home screen like a native app
 
 ---
 
-## Default buckets
-The SQL setup seeds a few starter buckets out of the box — they're just examples to get you going. Rename, recolor, delete, or add your own inside the app after setup. The only rule is the total must equal 100%.
-
-| Bucket | Example use |
-|---|---|
-| Savings | Emergency fund, long-term goals |
-| Bills | Rent, utilities, subscriptions |
-| Daily Ops | Food, transport, everyday spending |
-| Investments | Stocks, crypto, funds |
-| Fun | Hobbies, dining out, travel |
-
----
-
 ## Privacy
-- All data is stored locally on your device (IndexedDB)
-- Supabase sync is optional — the app works fully offline without it
-- No third-party services, no analytics, no ads
-- Your Supabase anon key is scoped only to your project — don't share your Project URL + key combination publicly if you want to keep your data private
+- All data stored locally on your device (IndexedDB) first
+- Supabase sync is optional but recommended for multi-device use and backup
+- No third-party analytics, no ads
+- Your Supabase anon key is safe to use in the browser (Row Level Security is enabled)
 
 ---
 

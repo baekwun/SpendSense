@@ -15,7 +15,7 @@ create table if not exists transactions (
   payslip_data  text,
   savings_bucket_snapshot text,
   notes         text,
-  created_at    text,
+  created_at    timestamptz default now(),
   updated_at    timestamptz default now()
 );
 

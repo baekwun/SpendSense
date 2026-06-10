@@ -136,6 +136,7 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
 .type-btn.active.expense{background:rgba(248,113,113,.15);color:var(--red)}
 .type-btn.active.payslip{background:rgba(129,140,248,.15);color:var(--acc2)}
 .type-btn.active.savings{background:rgba(165,180,252,.15);color:var(--acc2)}
+.type-btn.active.transfer{background:rgba(96,165,250,.15);color:var(--blue)}
 /* category grid */
 .cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
 .cat-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border:1.5px solid var(--border2);border-radius:var(--rs);cursor:pointer;transition:all .2s;background:var(--bg3)}
@@ -453,7 +454,8 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
         <button class="type-btn active expense" id="type-expense" onclick="setType('expense')">− Expense</button>
         <button class="type-btn income" id="type-income" onclick="setType('income')">+ Income</button>
         <button class="type-btn payslip" id="type-payslip" onclick="setType('payslip')">📄 Payslip</button>
-        <button class="type-btn savings" id="type-savings" onclick="setType('savings')">🪣 Savings</button>
+        <button class="type-btn savings" id="type-savings" onclick="setType('savings')">🪣 Bucket</button>
+        <button class="type-btn transfer" id="type-transfer" onclick="setType('transfer')">⇄ Transfer</button>
       </div>
       <div class="amt-input-wrap">
         <div class="amt-currency">Philippine Peso (₱)</div>
@@ -463,10 +465,15 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
         <div class="field"><label>Date</label><input type="date" id="tx-date"></div>
         <div class="field"><label>Description</label><input type="text" id="tx-desc" placeholder="what for?"></div>
       </div>
-      <!-- Account picker -->
+      <!-- Account picker (from) -->
       <div class="field" id="account-field">
-        <label>Account</label>
-        <select id="tx-account"><option value="">— Select account —</option></select>
+        <label id="account-field-label">Account</label>
+        <select id="tx-account"><option value="">— No account —</option></select>
+      </div>
+      <!-- To-account for transfers -->
+      <div class="field" id="to-account-field" style="display:none">
+        <label>To Account</label>
+        <select id="tx-to-account"><option value="">— Select destination —</option></select>
       </div>
       <!-- Category grid (expense/income) -->
       <div id="cat-section">
@@ -539,6 +546,18 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
         <div style="font-size:11px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Select bucket</div>
         <div id="savings-bucket-grid" class="cat-grid"></div>
         <div class="field" style="margin-top:10px"><label>Memo (optional)</label><input type="text" id="sv-memo" placeholder="e.g. transfer from payslip..."></div>
+        <div style="background:var(--bg3);border-radius:var(--rs);padding:12px;margin-bottom:14px;margin-top:4px">
+          <div class="toggle-row" style="padding:0;border:none">
+            <div><div class="toggle-label" style="color:var(--red)">Withdraw from bucket?</div><div class="toggle-sub">Subtracts this amount from the bucket balance</div></div>
+            <label class="switch"><input type="checkbox" id="sv-withdraw"><span class="slider-sw"></span></label>
+          </div>
+        </div>
+      </div>
+      <!-- Transfer section -->
+      <div id="transfer-section" style="display:none">
+        <div style="background:var(--bg3);border-radius:var(--rs);padding:12px;margin-bottom:14px;font-size:12px;color:var(--text3);line-height:1.7">
+          Select <b style="color:var(--text2)">From Account</b> and <b style="color:var(--text2)">To Account</b> above. The amount will be deducted from the source and added to the destination.
+        </div>
       </div>
       <!-- Split toggle (income/expense) -->
       <div id="split-toggle-row" style="display:none;background:var(--bg3);border-radius:var(--rs);padding:12px;margin-bottom:14px">
@@ -858,8 +877,10 @@ function changeMonth(dir){
 
 // ═══ ACCOUNT SELECTOR IN TX MODAL ════════════════════════════
 function populateAccountSelect(){
-  const sel=document.getElementById('tx-account');
-  sel.innerHTML='<option value="">— No account —</option>'+
+  const opts='<option value="">— No account —</option>'+
+    accounts.map(a=>`<option value="${a.id}">${a.emoji} ${a.name}</option>`).join('');
+  document.getElementById('tx-account').innerHTML=opts;
+  document.getElementById('tx-to-account').innerHTML='<option value="">— Select destination —</option>'+
     accounts.map(a=>`<option value="${a.id}">${a.emoji} ${a.name}</option>`).join('');
 }
 
@@ -869,9 +890,9 @@ async function renderTxList(){
   document.getElementById('msel-label').textContent=monthLabel(currentMonth);
   const allTx=(await dbAll('transactions')).sort((a,b)=>new Date(b.date)-new Date(a.date));
   const monthTx=allTx.filter(t=>(t.date||'').startsWith(mk));
-  const income=monthTx.filter(t=>t.type!=='expense'&&t.type!=='savings').reduce((a,t)=>a+(t.amount||0),0);
-  const expense=monthTx.filter(t=>t.type==='expense').reduce((a,t)=>a+(t.amount||0),0);
-  const saved=monthTx.filter(t=>t.type==='savings').reduce((a,t)=>a+(t.amount||0),0);
+  const income=monthTx.filter(t=>t.type!=='expense'&&t.type!=='savings'&&t.type!=='transfer-out'&&t.type!=='transfer-in').reduce((a,t)=>a+(t.amount||0),0);
+  const expense=monthTx.filter(t=>t.type==='expense'||(t.type==='savings'&&t.savingsWithdraw)).reduce((a,t)=>a+(t.amount||0),0);
+  const saved=monthTx.filter(t=>t.type==='savings'&&!t.savingsWithdraw).reduce((a,t)=>a+(t.amount||0),0);
   const bal=income-expense;
   document.getElementById('sb-month').textContent=monthLabel(currentMonth).toUpperCase();
   document.getElementById('sb-inc').textContent=php(income);
@@ -885,31 +906,43 @@ async function renderTxList(){
   }
 const groups={};
 monthTx.forEach(t=>{if(!groups[t.date])groups[t.date]=[];groups[t.date].push(t);});
-// Sort each day's entries by createdAt descending (latest entry first)
+// Sort each day's entries by createdAt descending — latest entry at top
 Object.keys(groups).forEach(date=>{
-  groups[date].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  groups[date].sort((a,b)=>{
+    const ta=a.createdAt?new Date(a.createdAt).getTime():0;
+    const tb=b.createdAt?new Date(b.createdAt).getTime():0;
+    return tb-ta;
+  });
 });
   let html='';
   Object.keys(groups).sort((a,b)=>new Date(b)-new Date(a)).forEach(date=>{
     const txs=groups[date];
-    const dayInc=txs.filter(t=>t.type!=='expense'&&t.type!=='savings').reduce((a,t)=>a+(t.amount||0),0);
-    const dayExp=txs.filter(t=>t.type==='expense').reduce((a,t)=>a+(t.amount||0),0);
+    const dayInc=txs.filter(t=>t.type!=='expense'&&t.type!=='savings'&&t.type!=='transfer-out'&&t.type!=='transfer-in').reduce((a,t)=>a+(t.amount||0),0);
+    const dayExp=txs.filter(t=>t.type==='expense'||(t.type==='savings'&&t.savingsWithdraw)).reduce((a,t)=>a+(t.amount||0),0);
     const dayNet=dayInc-dayExp;
     const dayLabel=new Date(date+'T00:00:00').toLocaleDateString('en-PH',{weekday:'short',month:'short',day:'numeric'});
     html+=`<div class="tx-day-group"><div class="tx-day-header"><span class="tx-day-label">${dayLabel}</span><span class="tx-day-net ${dayNet>0?'pos':dayNet<0?'neg':'zero'}">${dayNet>0?'+':''}${php(dayNet)}</span></div><div class="tx-card">`;
     txs.forEach(t=>{
       const isSav=t.type==='savings';
-      const ci=isSav&&t.savingsBucketSnapshot?{emoji:'🪣',label:t.savingsBucketSnapshot.name,color:t.savingsBucketSnapshot.color}:catById(t.category);
-      const isExp=t.type==='expense';
-      const amtClass=isSav?'sav':isExp?'exp':'inc';
-      const prefix=isSav?'→':isExp?'−':'+';
+      const isTransOut=t.type==='transfer-out';
+      const isTransIn=t.type==='transfer-in';
+      const isTrans=isTransOut||isTransIn;
+      const isWithdraw=isSav&&t.savingsWithdraw;
+      const ci=isSav&&t.savingsBucketSnapshot
+        ?{emoji:isWithdraw?'📤':'🪣',label:(isWithdraw?'↩ ':'')+t.savingsBucketSnapshot.name,color:t.savingsBucketSnapshot.color}
+        :isTrans?{emoji:isTransOut?'↗':'↙',label:isTransOut?'Transfer Out':'Transfer In',color:'var(--blue)'}
+        :catById(t.category);
+      const isExp=t.type==='expense'||isTransOut||isWithdraw;
+      const amtClass=isSav&&!isWithdraw?'sav':isExp?'exp':'inc';
+      const prefix=isSav&&!isWithdraw?'→':isExp?'−':'+';
       const acc=accById(t.accountId);
       const accTag=acc?`<span style="font-size:10px;color:var(--text3);margin-left:4px">${acc.emoji} ${acc.name}</span>`:'';
+      const typeTag=t.type==='payslip'?' · Payslip':isSav?' · Bucket':isTrans?` · Transfer`:'';
       html+=`<div class="tx-item" onclick="viewTx('${t.id}')">
-        <div class="tx-icon" style="background:${ci.color}22">${ci.emoji}</div>
+        <div class="tx-icon" style="background:${(ci.color||'#94a3b8')}22">${ci.emoji}</div>
         <div class="tx-info">
           <div class="tx-desc">${t.description||ci.label}${!t.synced?'<span class="offline-dot"></span>':''}</div>
-          <div class="tx-cat">${ci.label}${t.type==='payslip'?' · Payslip':t.type==='savings'?' · Savings':''}${accTag}</div>
+          <div class="tx-cat">${ci.label}${typeTag}${accTag}</div>
         </div>
         <div class="tx-right"><div class="tx-amt ${amtClass}">${prefix}${php(t.amount)}</div></div>
       </div>`;
@@ -1040,7 +1073,7 @@ async function updateTx(id){
     const g=eid=>parseFloat(document.getElementById(eid)?.value)||0;
     payslipData={period:document.getElementById('ps-period')?.value||'',numDays:g('ps-days'),basicPay:g('ps-basic'),ot:g('ps-ot'),holidays:g('ps-hol'),sss:g('ps-sss'),hdmf:g('ps-hdmf'),philhealth:g('ps-ph'),misc:g('ps-misc'),loans:g('ps-loans'),tardiness:g('ps-tard'),undertime:g('ps-under'),absences:g('ps-abs'),slryHldy:g('ps-slry')};
   }else{applySplit=document.getElementById('tx-apply-split').checked;}
-  await dbPut('transactions',{...existing,date,type:currentType,category,description:desc||(catById(category).label),amount,accountId,applySplit,payslipData,savingsBucketSnapshot,notes,synced:false,updatedAt:Date.now()});
+  await dbPut('transactions',{...existing,date,type:currentType,category,description:desc||(catById(category).label),amount,accountId,applySplit,payslipData,savingsBucketSnapshot,savingsWithdraw:(currentType==='savings'&&document.getElementById('sv-withdraw')?.checked)||false,notes,synced:false,updatedAt:new Date().toISOString()});
   resetTxModal();closeModal('modal-tx');
   toast('Updated!'+(isOnline?'':' (offline)'));
   currentMonth=new Date(date+'T00:00:00');renderTxList();
@@ -1067,6 +1100,8 @@ function showAddTx(){
   document.getElementById('sv-memo').value='';
   document.getElementById('tx-apply-split').checked=true;
   document.getElementById('ps-apply-split').checked=true;
+  const svw=document.getElementById('sv-withdraw');if(svw)svw.checked=false;
+  document.getElementById('tx-to-account').value='';
   ['ps-period','ps-basic','ps-ot','ps-hol','ps-sss','ps-hdmf','ps-ph','ps-misc','ps-loans','ps-tard','ps-under','ps-abs','ps-slry'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('net-box-val').textContent='₱—';
   document.getElementById('net-box-val').style.color='var(--text3)';
@@ -1085,10 +1120,14 @@ function resetTxModal(){
 
 function setType(type){
   currentType=type;
-  ['expense','income','payslip','savings'].forEach(t=>{document.getElementById('type-'+t).classList.toggle('active',t===type);});
-  document.getElementById('cat-section').style.display=(type==='payslip'||type==='savings')?'none':'block';
+  ['expense','income','payslip','savings','transfer'].forEach(t=>{
+    const el=document.getElementById('type-'+t);
+    if(el)el.classList.toggle('active',t===type);
+  });
+  document.getElementById('cat-section').style.display=(type==='payslip'||type==='savings'||type==='transfer')?'none':'block';
   document.getElementById('payslip-section').style.display=type==='payslip'?'block':'none';
   document.getElementById('savings-section').style.display=type==='savings'?'block':'none';
+  document.getElementById('transfer-section').style.display=type==='transfer'?'block':'none';
   if(type==='savings')renderSavingsBucketGrid();
   const splitRow=document.getElementById('split-toggle-row');
   splitRow.style.display=(type==='income'||type==='expense')?'block':'none';
@@ -1105,9 +1144,17 @@ function setType(type){
   else document.getElementById('ps-split-preview-wrap').style.display='none';
   renderCatGrid(type==='expense'?expCats:incCats);
   selectedCat=(type==='expense'?expCats[0]:incCats[0])?.id||'';
-  document.getElementById('tx-submit-btn').textContent=type==='payslip'?'Save Payslip':type==='savings'?'Save to Bucket':'Save Entry';
-  // show/hide account field (hide for savings)
-  document.getElementById('account-field').style.display=type==='savings'?'none':'block';
+  document.getElementById('tx-submit-btn').textContent=
+    type==='payslip'?'Save Payslip':
+    type==='savings'?'Save to Bucket':
+    type==='transfer'?'Save Transfer':
+    'Save Entry';
+  // Account field: show for all except savings; label changes for transfer
+  const accField=document.getElementById('account-field');
+  const toAccField=document.getElementById('to-account-field');
+  accField.style.display=type==='savings'?'none':'block';
+  document.getElementById('account-field-label').textContent=type==='transfer'?'From Account':'Account';
+  toAccField.style.display=type==='transfer'?'block':'none';
 }
 
 function renderSavingsBucketGrid(){
@@ -1201,7 +1248,25 @@ async function submitTx(){
   const notes=document.getElementById('tx-notes').value;
   const accountId=document.getElementById('tx-account').value||null;
   if(!amount||!date){toast('Fill in amount and date.');return;}
-  let payslipData=null,category=selectedCat,savingsBucketSnapshot=null,applySplit=false;
+  // ── TRANSFER ──
+  if(currentType==='transfer'){
+    const toAccId=document.getElementById('tx-to-account').value||null;
+    if(!accountId||!toAccId){toast('Select both From and To accounts.');return;}
+    if(accountId===toAccId){toast('From and To must be different accounts.');return;}
+    const fromAcc=accById(accountId),toAcc=accById(toAccId);
+    const linkId='TRF-'+Date.now();
+    const now=new Date().toISOString();
+    await dbPut('transactions',{id:linkId+'-OUT',date,type:'transfer-out',category:'c_transfer',description:desc||`Transfer → ${toAcc?.name||'?'}`,amount,accountId,applySplit:false,payslipData:null,savingsBucketSnapshot:null,savingsWithdraw:false,notes,synced:false,createdAt:now,transferLink:linkId});
+    await dbPut('transactions',{id:linkId+'-IN',date,type:'transfer-in',category:'c_transfer',description:desc||`Transfer ← ${fromAcc?.name||'?'}`,amount,accountId:toAccId,applySplit:false,payslipData:null,savingsBucketSnapshot:null,savingsWithdraw:false,notes,synced:false,createdAt:now,transferLink:linkId});
+    closeModal('modal-tx');resetTxModal();
+    toast('Transfer saved!'+(isOnline?'':' (offline)'));
+    currentMonth=new Date(date+'T00:00:00');renderTxList();
+    if(accountId)await recalcAccountBalance(accountId);
+    if(toAccId)await recalcAccountBalance(toAccId);
+    if(isOnline)syncPending();
+    return;
+  }
+  let payslipData=null,category=selectedCat,savingsBucketSnapshot=null,applySplit=false,savingsWithdraw=false;
   if(currentType==='payslip'){
     category='c_salary';applySplit=document.getElementById('ps-apply-split').checked;
     const g=id=>parseFloat(document.getElementById(id)?.value)||0;
@@ -1210,11 +1275,12 @@ async function submitTx(){
     if(!selectedSavingsBucket){toast('Select a bucket first.');return;}
     savingsBucketSnapshot={id:selectedSavingsBucket.id,name:selectedSavingsBucket.name,color:selectedSavingsBucket.color};
     category='savings';
+    savingsWithdraw=document.getElementById('sv-withdraw')?.checked||false;
   }else{applySplit=document.getElementById('tx-apply-split').checked;}
   const ci=catById(category);
   const tx={id:genId('TX'),date,type:currentType,category,
-    description:desc||(currentType==='savings'?(savingsBucketSnapshot?.name||'Savings'):ci.label),
-    amount,accountId,applySplit,payslipData,savingsBucketSnapshot,notes,synced:false,createdAt:Date.now()};
+    description:desc||(currentType==='savings'?(savingsWithdraw?'Withdraw: ':('')+( savingsBucketSnapshot?.name||'Savings')):ci.label),
+    amount,accountId,applySplit,payslipData,savingsBucketSnapshot,savingsWithdraw,notes,synced:false,createdAt:new Date().toISOString()};
   await dbPut('transactions',tx);
   closeModal('modal-tx');resetTxModal();
   toast('Saved!'+(isOnline?'':' (offline)'));
@@ -1346,15 +1412,19 @@ async function deleteAccount(){
   closeModal('modal-account');renderAccountsView();toast('Account deleted.');
 }
 
-// Recalc account balance from all transactions (starting balance + income/payslip - expense)
+// Recalc account balance from all transactions
 async function recalcAccountBalance(accountId){
   const acc=accounts.find(a=>a.id===accountId);
   if(!acc)return;
   const txs=(await dbAll('transactions')).filter(t=>t.accountId===accountId);
   let bal=acc.startingBalance||0;
   txs.forEach(t=>{
-    if(t.type==='expense')bal-=t.amount||0;
-    else if(t.type!=='savings')bal+=t.amount||0;
+    if(t.type==='expense'||t.type==='transfer-out')bal-=t.amount||0;
+    else if(t.type==='savings'){
+      // savings entries don't affect account balance unless explicitly withdrawn
+      if(t.savingsWithdraw)bal-=t.amount||0; // withdraw from bucket hits account
+    }
+    else if(t.type!=='transfer-out')bal+=t.amount||0; // income, payslip, transfer-in
   });
   acc.balance=bal;
   await dbPut('accounts',acc);
@@ -1514,7 +1584,8 @@ async function renderSavingsView(){
   savingsTxs.forEach(t=>{
     const snap=t.savingsBucketSnapshot;
     if(!byBucket[snap.id])byBucket[snap.id]={id:snap.id,name:snap.name,color:snap.color,total:0,entries:[]};
-    byBucket[snap.id].total+=t.amount||0;byBucket[snap.id].entries.push(t);
+    const delta=t.savingsWithdraw?-(t.amount||0):(t.amount||0);
+    byBucket[snap.id].total+=delta;byBucket[snap.id].entries.push(t);
   });
   buckets.forEach(b=>{if(!byBucket[b.id])byBucket[b.id]={id:b.id,name:b.name,color:b.color,total:0,entries:[]};});
   const grandTotal=Object.values(byBucket).reduce((a,b)=>a+b.total,0);

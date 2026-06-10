@@ -430,6 +430,7 @@ input:checked+.slider-sw:before{transform:translateX(20px)}
       <div style="font-size:11px;color:var(--text3);margin-top:10px" id="s-pct-total"></div>
     </div>
     <button class="btn btn-p" onclick="saveAllSettings()">Save Settings</button>
+    <button class="btn btn-g" onclick="forceResync()" style="margin-top:8px">↺ Force Resync from Supabase</button>
     <div class="gap"></div>
     <div style="text-align:center;font-size:11px;color:var(--text3);line-height:1.9">SpendSense v2.3 · offline-first PWA · Supabase sync<br>built by baekwun</div>
     <div class="gap"></div>
@@ -1688,6 +1689,54 @@ async function saveBuckets(){
       await fetch(`${url}/rest/v1/buckets?id=neq.NONE`,{method:'DELETE',headers:{'apikey':key,'Authorization':'Bearer '+key}});
       await sbPost('buckets',buckets.map(b=>({id:b.id,name:b.name,percent:b.percent,color:b.color,active:true})));
     }catch(e){}
+  }
+}
+
+async function forceResync(){
+  const url=await sbUrl(),key=await sbKey();
+  if(!url||!key){toast('Enter Supabase URL and key first.');return;}
+  if(!isOnline){toast('You are offline.');return;}
+  try{
+    setSyncPill('syncing');
+    toast('Resyncing from Supabase...');
+
+    // Pull all transactions fresh — mark existing as needing update
+    const rows=await sbGet('transactions',{'order':'date.desc','limit':1000});
+    if(!Array.isArray(rows)){toast('Sync failed.');setSyncPill('online');return;}
+
+    // Clear local transactions and replace with Supabase data
+    await dbClear('transactions');
+    for(const row of rows){
+      let payslipData=null;
+      try{if(row.payslip_data)payslipData=typeof row.payslip_data==='string'?JSON.parse(row.payslip_data):row.payslip_data;}catch(e){}
+      let savingsBucketSnapshot=null;
+      try{if(row.savings_bucket_snapshot)savingsBucketSnapshot=typeof row.savings_bucket_snapshot==='string'?JSON.parse(row.savings_bucket_snapshot):row.savings_bucket_snapshot;}catch(e){}
+      await dbPut('transactions',{
+        id:row.id,date:row.date||'',type:row.type||'expense',category:row.category||'c_other',
+        description:row.description||'',amount:parseFloat(row.amount)||0,
+        accountId:row.account_id||null,
+        applySplit:row.apply_split===true||row.apply_split==='true',
+        payslipData,savingsBucketSnapshot,notes:row.notes||'',synced:true,
+        createdAt:row.created_at||Date.now()
+      });
+    }
+
+    // Pull buckets too
+    try{
+      const bktRows=await sbGet('buckets',{'active':'eq.true'});
+      if(Array.isArray(bktRows)&&bktRows.length){
+        buckets=bktRows.map(b=>({id:b.id,name:b.name,percent:parseFloat(b.percent)||0,color:b.color||'#818cf8'}));
+        await saveBucketsLocal();
+      }
+    }catch(e){}
+
+    setSyncPill('online');
+    toast(`Resynced ${rows.length} transaction(s) from Supabase ✓`);
+    renderTxList();
+    renderSettingsBuckets();
+  }catch(e){
+    setSyncPill('online');
+    toast('Resync failed. Check your connection.');
   }
 }
 

@@ -825,10 +825,20 @@ async function pullFromSupabase(){
     const rows=await sbGet('transactions',{'order':'created_at.desc','limit':1000});
     if(!Array.isArray(rows)){setSyncPill('online');return;}
     const existing=await dbAll('transactions');
-    const existingIds=new Set(existing.map(t=>t.id));
+    // Build map of local records by id for comparison
+    const localMap={};existing.forEach(t=>{localMap[t.id]=t;});
     let pulled=0;
     for(const row of rows){
-      if(!row.id||existingIds.has(row.id))continue;
+      if(!row.id)continue;
+      const local=localMap[row.id];
+      // Skip if local copy exists AND is unsynced (user edited offline — don't overwrite)
+      if(local&&!local.synced)continue;
+      // Skip if local copy exists AND has same or newer createdAt (already up to date)
+      if(local){
+        const localTs=new Date(local.createdAt).getTime()||0;
+        const remoteTs=new Date(row.created_at).getTime()||0;
+        if(localTs>=remoteTs)continue;
+      }
       let payslipData=null;
       try{if(row.payslip_data)payslipData=typeof row.payslip_data==='string'?JSON.parse(row.payslip_data):row.payslip_data;}catch(e){}
       let savingsBucketSnapshot=null;
@@ -838,7 +848,8 @@ async function pullFromSupabase(){
         description:row.description||'',amount:parseFloat(row.amount)||0,
         accountId:row.account_id||null,
         applySplit:row.apply_split===true||row.apply_split==='true',
-        payslipData,savingsBucketSnapshot,notes:row.notes||'',synced:true,createdAt:row.created_at||new Date().toISOString()
+        payslipData,savingsBucketSnapshot,notes:row.notes||'',synced:true,
+        createdAt:row.created_at||new Date().toISOString()
       });
       pulled++;
     }
@@ -851,6 +862,7 @@ async function pullFromSupabase(){
     }catch(e){}
     setSyncPill('online');
     if(pulled>0){toast(`Pulled ${pulled} record(s) ✓`);renderTxList();}
+    else setSyncPill('online');
   }catch(e){setSyncPill(isOnline?'online':'offline');}
 }
 
@@ -1583,24 +1595,34 @@ async function renderSavingsView(){
   const byBucket={};
   savingsTxs.forEach(t=>{
     const snap=t.savingsBucketSnapshot;
-    if(!byBucket[snap.id])byBucket[snap.id]={id:snap.id,name:snap.name,color:snap.color,total:0,entries:[]};
-    const delta=t.savingsWithdraw?-(t.amount||0):(t.amount||0);
-    byBucket[snap.id].total+=delta;byBucket[snap.id].entries.push(t);
+    if(!byBucket[snap.id])byBucket[snap.id]={id:snap.id,name:snap.name,color:snap.color,total:0,withdrawn:0,entries:[]};
+    if(t.savingsWithdraw){
+      byBucket[snap.id].withdrawn+=(t.amount||0);
+    } else {
+      byBucket[snap.id].total+=(t.amount||0);
+    }
+    byBucket[snap.id].entries.push(t);
   });
-  buckets.forEach(b=>{if(!byBucket[b.id])byBucket[b.id]={id:b.id,name:b.name,color:b.color,total:0,entries:[]};});
+  buckets.forEach(b=>{if(!byBucket[b.id])byBucket[b.id]={id:b.id,name:b.name,color:b.color,total:0,withdrawn:0,entries:[]};});
   const grandTotal=Object.values(byBucket).reduce((a,b)=>a+b.total,0);
   const splitSources=txs.filter(t=>t.applySplit&&t.amount>0&&(t.type==='income'||t.type==='payslip')).sort((a,b)=>new Date(b.date)-new Date(a.date));
   const suggestedByBucket={};
   buckets.forEach(b=>{suggestedByBucket[b.id]=0;});
   splitSources.forEach(t=>{buckets.forEach(b=>{suggestedByBucket[b.id]=(suggestedByBucket[b.id]||0)+parseFloat((t.amount*b.percent/100).toFixed(2));});});
 
-// Subtract expense splits — these reduce available savings per bucket
-const expenseSplitSources=txs.filter(t=>t.applySplit&&t.amount>0&&t.type==='expense');
-expenseSplitSources.forEach(t=>{
-  buckets.forEach(b=>{
-    suggestedByBucket[b.id]=(suggestedByBucket[b.id]||0)-parseFloat((t.amount*b.percent/100).toFixed(2));
+  // Subtract expense splits (apply split on expense) — reduces Net Target
+  const expenseSplitSources=txs.filter(t=>t.applySplit&&t.amount>0&&t.type==='expense');
+  expenseSplitSources.forEach(t=>{
+    buckets.forEach(b=>{
+      suggestedByBucket[b.id]=(suggestedByBucket[b.id]||0)-parseFloat((t.amount*b.percent/100).toFixed(2));
+    });
   });
-});
+
+  // Subtract bucket withdrawals from Net Target too — money already spent from bucket
+  buckets.forEach(b=>{
+    const withdrawn=(byBucket[b.id]||{withdrawn:0}).withdrawn||0;
+    if(withdrawn>0)suggestedByBucket[b.id]=(suggestedByBucket[b.id]||0)-withdrawn;
+  });
 
 const totalSuggested=buckets.reduce((a,b)=>a+(suggestedByBucket[b.id]||0),0);
   let html='';
@@ -1618,15 +1640,19 @@ const totalSuggested=buckets.reduce((a,b)=>a+(suggestedByBucket[b.id]||0),0);
       <div style="font-size:10px;color:var(--text3);font-weight:700;text-align:right">Gap</div>`;
     buckets.forEach(b=>{
       const sugg=suggestedByBucket[b.id]||0;
-      const actual=(byBucket[b.id]||{total:0}).total;
-      const gap=sugg-actual;
+      const saved=(byBucket[b.id]||{total:0}).total;        // actual deposits only
+      const withdrawn=(byBucket[b.id]||{withdrawn:0}).withdrawn||0;
+      // Net Target already has withdrawal subtracted (lines above)
+      // Gap = how much more you still need to deposit
+      const gap=sugg-saved;
       const gc=gap<=0?'var(--green)':gap<sugg*0.5?'var(--amber)':'var(--red)';
+      const wTag=withdrawn>0?`<div style="font-size:9px;color:var(--red);margin-top:1px">−${php(withdrawn)} withdrawn</div>`:'';
       html+=`<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-top:1px solid var(--border)">
         <div style="width:8px;height:8px;border-radius:50%;background:${b.color};flex-shrink:0"></div>
-        <div style="font-size:12px;font-weight:600;color:${b.color}">${b.name}</div>
+        <div style="font-size:12px;font-weight:600;color:${b.color}">${b.name}${wTag}</div>
       </div>
       <div style="font-size:12px;font-weight:600;text-align:right;padding:5px 0;border-top:1px solid var(--border);color:var(--text2)">${php(sugg)}</div>
-      <div style="font-size:12px;font-weight:700;text-align:right;padding:5px 0;border-top:1px solid var(--border);color:var(--acc2)">${php(actual)}</div>
+      <div style="font-size:12px;font-weight:700;text-align:right;padding:5px 0;border-top:1px solid var(--border);color:var(--acc2)">${php(saved)}</div>
       <div style="font-size:12px;font-weight:700;text-align:right;padding:5px 0;border-top:1px solid var(--border);color:${gc}">${gap>0?php(gap):'✓'}</div>`;
     });
     html+=`</div>`;

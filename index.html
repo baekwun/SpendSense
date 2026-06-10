@@ -1593,38 +1593,38 @@ async function renderSavingsView(){
   const wcGoal=parseFloat(await getSetting('wc_goal','100000'));
   const wcSaved=parseFloat(await getSetting('wc_saved','0'));
   const byBucket={};
+  // Initialize all buckets first
+  buckets.forEach(b=>{byBucket[b.id]={id:b.id,name:b.name,color:b.color,deposited:0,withdrawn:0,entries:[]};});
+  // Accumulate actual savings entries
   savingsTxs.forEach(t=>{
     const snap=t.savingsBucketSnapshot;
-    if(!byBucket[snap.id])byBucket[snap.id]={id:snap.id,name:snap.name,color:snap.color,total:0,withdrawn:0,entries:[]};
-    if(t.savingsWithdraw){
-      byBucket[snap.id].withdrawn+=(t.amount||0);
-    } else {
-      byBucket[snap.id].total+=(t.amount||0);
-    }
+    if(!byBucket[snap.id])byBucket[snap.id]={id:snap.id,name:snap.name,color:snap.color,deposited:0,withdrawn:0,entries:[]};
+    if(t.savingsWithdraw)byBucket[snap.id].withdrawn+=parseFloat(t.amount)||0;
+    else byBucket[snap.id].deposited+=parseFloat(t.amount)||0;
     byBucket[snap.id].entries.push(t);
   });
-  buckets.forEach(b=>{if(!byBucket[b.id])byBucket[b.id]={id:b.id,name:b.name,color:b.color,total:0,withdrawn:0,entries:[]};});
-  const grandTotal=Object.values(byBucket).reduce((a,b)=>a+b.total,0);
+
+  // grandTotal = total actually deposited across all buckets
+  const grandTotal=Object.values(byBucket).reduce((a,b)=>a+b.deposited,0);
+
   const splitSources=txs.filter(t=>t.applySplit&&t.amount>0&&(t.type==='income'||t.type==='payslip')).sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+  // suggestedByBucket = how much you SHOULD have saved per bucket
+  // = income splits − expense splits − withdrawals (already spent, lowers the bar)
   const suggestedByBucket={};
   buckets.forEach(b=>{suggestedByBucket[b.id]=0;});
-  splitSources.forEach(t=>{buckets.forEach(b=>{suggestedByBucket[b.id]=(suggestedByBucket[b.id]||0)+parseFloat((t.amount*b.percent/100).toFixed(2));});});
-
-  // Subtract expense splits (apply split on expense) — reduces Net Target
-  const expenseSplitSources=txs.filter(t=>t.applySplit&&t.amount>0&&t.type==='expense');
-  expenseSplitSources.forEach(t=>{
-    buckets.forEach(b=>{
-      suggestedByBucket[b.id]=(suggestedByBucket[b.id]||0)-parseFloat((t.amount*b.percent/100).toFixed(2));
-    });
+  // Add income/payslip splits
+  splitSources.forEach(t=>{
+    buckets.forEach(b=>{suggestedByBucket[b.id]+=parseFloat((t.amount*b.percent/100).toFixed(2));});
   });
-
-  // Subtract bucket withdrawals from Net Target too — money already spent from bucket
-  buckets.forEach(b=>{
-    const withdrawn=(byBucket[b.id]||{withdrawn:0}).withdrawn||0;
-    if(withdrawn>0)suggestedByBucket[b.id]=(suggestedByBucket[b.id]||0)-withdrawn;
+  // Subtract expense splits
+  txs.filter(t=>t.applySplit&&t.amount>0&&t.type==='expense').forEach(t=>{
+    buckets.forEach(b=>{suggestedByBucket[b.id]-=parseFloat((t.amount*b.percent/100).toFixed(2));});
   });
+  // Subtract withdrawals — you already spent it so you don't need to save it
+  buckets.forEach(b=>{suggestedByBucket[b.id]-=(byBucket[b.id]||{withdrawn:0}).withdrawn||0;});
 
-const totalSuggested=buckets.reduce((a,b)=>a+(suggestedByBucket[b.id]||0),0);
+  const totalSuggested=buckets.reduce((a,b)=>a+(suggestedByBucket[b.id]||0),0);
   let html='';
   if(splitSources.length){
     html+=`<div class="card">

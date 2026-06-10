@@ -883,8 +883,12 @@ async function renderTxList(){
     document.getElementById('tx-list').innerHTML=`<div class="empty"><div class="empty-icon">📭</div><div class="empty-title">No entries this month</div><div class="empty-sub">Tap + to log your first entry.</div></div>`;
     return;
   }
-  const groups={};
-  monthTx.forEach(t=>{if(!groups[t.date])groups[t.date]=[];groups[t.date].push(t);});
+const groups={};
+monthTx.forEach(t=>{if(!groups[t.date])groups[t.date]=[];groups[t.date].push(t);});
+// Sort each day's entries by createdAt descending (latest entry first)
+Object.keys(groups).forEach(date=>{
+  groups[date].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+});
   let html='';
   Object.keys(groups).sort((a,b)=>new Date(b)-new Date(a)).forEach(date=>{
     const txs=groups[date];

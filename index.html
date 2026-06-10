@@ -1705,7 +1705,69 @@ async function forceResync(){
     if(!Array.isArray(rows)){toast('Sync failed.');setSyncPill('online');return;}
 
     // Clear local transactions and replace with Supabase data
+    async function forceResync(){
+  const url=await sbUrl(),key=await sbKey();
+  if(!url||!key){toast('Enter Supabase URL and key first.');return;}
+  if(!isOnline){toast('You are offline.');return;}
+  try{
+    setSyncPill('syncing');
+    toast('Syncing...');
+
+    // STEP 1 — Push any local unsynced entries to Supabase first
+    const allLocal=await dbAll('transactions');
+    const pending=allLocal.filter(t=>!t.synced);
+    if(pending.length){
+      const rows=pending.map(t=>({
+        id:t.id,date:t.date,type:t.type,category:t.category,
+        description:t.description,amount:t.amount,account_id:t.accountId||null,
+        apply_split:t.applySplit||false,
+        payslip_data:t.payslipData?JSON.stringify(t.payslipData):null,
+        savings_bucket_snapshot:t.savingsBucketSnapshot?JSON.stringify(t.savingsBucketSnapshot):null,
+        notes:t.notes||'',created_at:t.createdAt||new Date().toISOString()
+      }));
+      await sbPost('transactions',rows);
+      for(const t of pending)await dbPut('transactions',{...t,synced:true});
+    }
+
+    // STEP 2 — Pull everything from Supabase fresh
+    const sbRows=await sbGet('transactions',{'order':'date.desc','limit':1000});
+    if(!Array.isArray(sbRows)){toast('Pull failed.');setSyncPill('online');return;}
+
     await dbClear('transactions');
+    for(const row of sbRows){
+      let payslipData=null;
+      try{if(row.payslip_data)payslipData=typeof row.payslip_data==='string'?JSON.parse(row.payslip_data):row.payslip_data;}catch(e){}
+      let savingsBucketSnapshot=null;
+      try{if(row.savings_bucket_snapshot)savingsBucketSnapshot=typeof row.savings_bucket_snapshot==='string'?JSON.parse(row.savings_bucket_snapshot):row.savings_bucket_snapshot;}catch(e){}
+      await dbPut('transactions',{
+        id:row.id,date:row.date||'',type:row.type||'expense',category:row.category||'c_other',
+        description:row.description||'',amount:parseFloat(row.amount)||0,
+        accountId:row.account_id||null,
+        applySplit:row.apply_split===true||row.apply_split==='true',
+        payslipData,savingsBucketSnapshot,notes:row.notes||'',synced:true,
+        createdAt:row.created_at||Date.now()
+      });
+    }
+
+    // STEP 3 — Pull buckets
+    try{
+      const bktRows=await sbGet('buckets',{'active':'eq.true'});
+      if(Array.isArray(bktRows)&&bktRows.length){
+        buckets=bktRows.map(b=>({id:b.id,name:b.name,percent:parseFloat(b.percent)||0,color:b.color||'#818cf8'}));
+        await saveBucketsLocal();
+      }
+    }catch(e){}
+
+    setSyncPill('online');
+    toast(`Done — ${sbRows.length} transaction(s) synced ✓`);
+    renderTxList();
+    renderSettingsBuckets();
+  }catch(e){
+    setSyncPill('online');
+    toast('Sync failed. Check connection.');
+    console.error(e);
+  }
+}
     for(const row of rows){
       let payslipData=null;
       try{if(row.payslip_data)payslipData=typeof row.payslip_data==='string'?JSON.parse(row.payslip_data):row.payslip_data;}catch(e){}
